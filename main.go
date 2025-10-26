@@ -12,10 +12,9 @@ import (
 	"github.com/ohhfishal/gopher/watch"
 )
 
-
 type Cmd struct {
 	LogConfig LogConfig `embed:""`
-	Watch watch.CMD `cmd:"" default:"withargs" help:"Watch for changes and rebuild"`
+	Watch     watch.CMD `cmd:"" default:"withargs" help:"Watch for changes and rebuild"`
 }
 
 func main() {
@@ -54,7 +53,7 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 		return err
 	}
 
-	logger :=	cmd.LogConfig.NewLogger(stdout)
+	logger := cmd.LogConfig.NewLogger(stdout)
 	if err := context.Run(logger); err != nil {
 		return err
 	}
