@@ -1,5 +1,10 @@
 package watch
 
+import (
+	"context"
+	"log/slog"
+)
+
 // From https://pkg.go.dev/cmd/go#hdr-Build__json_encoding
 type BuildEvent struct {
 	// TODO: Get the import path using go list -json. Then use that to truncate this one
@@ -10,4 +15,9 @@ type BuildEvent struct {
 	// The Action field is one of the following:
 	// build-output - The toolchain printed output
 	// build-fail - The build failed
+}
+
+func Build(ctx context.Context, logger *slog.Logger) error {
+	logger.Info("building")
+	return nil
 }
