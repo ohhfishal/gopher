@@ -16,7 +16,7 @@ type CMD struct {
 	Interval time.Duration `default:"3s" help:""`
 }
 
-func (config *CMD) Run(ctx context.Context, stdout io.Writer, logger *slog.Logger) error {
+func (config *CMD) Run(ctx context.Context, stdin io.Reader, stdout io.Writer, logger *slog.Logger) error {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return err

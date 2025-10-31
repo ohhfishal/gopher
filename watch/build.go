@@ -3,14 +3,17 @@ package watch
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"log/slog"
 	"os/exec"
 )
 
 type BuildFunc func(context.Context, string) ([]BuildEvent, error)
+
+const (
+	BuildOutput = "build-output"
+	BuildFail   = "build-fail"
+)
 
 // From https://pkg.go.dev/cmd/go#hdr-Build__json_encoding
 type BuildEvent struct {
@@ -52,16 +55,5 @@ func goBuild(ctx context.Context, path string) ([]BuildEvent, error) {
 		return []BuildEvent{}, nil
 	}
 
-	var events []BuildEvent
-	decoder := json.NewDecoder(bytes.NewReader(output))
-	for {
-		var event BuildEvent
-		if err := decoder.Decode(&event); err == io.EOF {
-			// TODO: Confirm the err is okay
-			return events, nil
-		} else if err != nil {
-			return nil, err
-		}
-		events = append(events, event)
-	}
+	return ParseBuildJSON(bytes.NewReader(output))
 }

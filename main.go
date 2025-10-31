@@ -13,8 +13,9 @@ import (
 )
 
 type Cmd struct {
-	LogConfig LogConfig `embed:""`
-	Watch     watch.CMD `cmd:"" default:"withargs" help:"Watch for changes and rebuild"`
+	LogConfig LogConfig       `embed:""`
+	Report    watch.ReportCMD `cmd:"" default:"withargs" help:"Output build report."`
+	Watch     watch.CMD       `cmd:"" help:"Watch for changes and rebuild"`
 }
 
 func main() {
@@ -55,7 +56,9 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 
 	logger := cmd.LogConfig.NewLogger(stdout)
 	if err := context.Run(logger); err != nil {
-		return err
+		// TODO: Handle some of the run options
+		logger.Error("failed to run", "error", err)
+		return nil
 	}
 	return nil
 }

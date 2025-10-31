@@ -1,0 +1,13 @@
+{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"# github.com/ohhfishal/gopher/watch\n"}
+{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/report.go:22:22: undefined: errors\n"}
+{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/report.go:25:9: undefined: fmt\n"}
+{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/report.go:32:58: undefined: io\n"}
+{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/report.go:35:10: undefined: fmt\n"}
+{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/report.go:39:10: undefined: fmt\n"}
+{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/report.go:44:48: undefined: io\n"}
+{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/report.go:60:24: undefined: fmt\n"}
+{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/report.go:85:25: undefined: fmt\n"}
+{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/report.go:90:25: undefined: fmt\n"}
+{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/report.go:130:27: undefined: io\n"}
+{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/report.go:90:25: too many errors\n"}
+{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-fail"}
