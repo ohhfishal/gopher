@@ -20,9 +20,10 @@
             owner = "ohhfishal";
             repo = "gopher";
             rev = "v${version}";
-            hash = "sha256-o7BbcnKAS9DIdQumuqxk3c9jxGhYLAEISBEbD2q9qlg=";
+            hash = "sha256-nsc05TIQ0keojF0FMQyeRHhhM8oC5rUyH9UcFs2F1wo=";
+            
           };
-          vendorHash = "sha256-Fx5aHPDPjwe9iomWBJa3yMcuIHx4W2CtHwMg1q62rDI=";
+          vendorHash = "sha256-bb4R0cCKVPr5Rrh1l0kZmsijg8Ojsf3KUaO/szsHU6I=";
           meta = {
             description = "Improved go build output.";
           };

@@ -16,5 +16,12 @@ in
     gotest.enable = true;
     gofmt.enable = true;
     golangci-lint.enable = true;
+
+    # Nix
+    nix-build = {
+      enable = true;
+      entry = "nix build";
+      pass_filenames = false;
+    };
   };
 }
