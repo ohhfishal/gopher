@@ -102,11 +102,6 @@ func ParseBuildJSON(input io.Reader) ([]BuildEvent, error) {
 	}
 }
 
-type ErrorMessage interface {
-	Print(io.Writer, int) error
-	Add([]string) error
-}
-
 type ErrorMessages struct {
 	files   map[string]map[string]ErrorMessage
 	tooMany bool
@@ -124,7 +119,7 @@ func (mapping ErrorMessages) Print(stdout io.Writer) error {
 			return err
 		}
 		for _, message := range errMessages {
-			if err := message.Print(stdout, 1); err != nil {
+			if err := message.Print(stdout); err != nil {
 				return err
 			}
 		}

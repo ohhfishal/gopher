@@ -14,6 +14,11 @@ var stdlibImports = map[string]any{
 	"encoding/json": nil,
 }
 
+type ErrorMessage interface {
+	Print(io.Writer) error
+	Add([]string) error
+}
+
 type undefinedErrorHandler struct {
 	symbols   []string
 	locations map[string][]Location
@@ -24,8 +29,8 @@ func NewUndefinedErrorHandler() ErrorMessage {
 		locations: map[string][]Location{},
 	}
 }
-func (h *undefinedErrorHandler) Print(stdout io.Writer, indentation int) error {
-	if _, err := fmt.Fprintln(stdout, "\t", "undefined:"); err != nil {
+func (h *undefinedErrorHandler) Print(stdout io.Writer) error {
+	if _, err := fmt.Fprintln(stdout, " ", "undefined:"); err != nil {
 		return err
 	}
 
@@ -34,13 +39,13 @@ func (h *undefinedErrorHandler) Print(stdout io.Writer, indentation int) error {
 		if _, ok := stdlibImports[symbol]; ok {
 			potentialImports = append(potentialImports, symbol)
 		}
-		if _, err := fmt.Fprintln(stdout, "\t", "\t", symbol, LocationsString(h.locations[symbol])); err != nil {
+		if _, err := fmt.Fprintln(stdout, "   ", symbol, LocationsString(h.locations[symbol])); err != nil {
 			return err
 		}
 	}
 	if len(potentialImports) > 0 {
-		line := fmt.Sprintf(`Did you forget to import (%s)?`, strings.Join(potentialImports, ", "))
-		if _, err := Suggestion.Fprintln(stdout, "\t", line); err != nil {
+		line := fmt.Sprintf(`Did you forget to import ("%s")?`, strings.Join(potentialImports, `", "`))
+		if _, err := Suggestion.Fprintln(stdout, " ", line); err != nil {
 			return err
 		}
 	}
