@@ -127,13 +127,13 @@ func ParseBuildJSON(input io.Reader) ([]BuildEvent, error) {
 }
 
 type ErrorMessages struct {
-	files   map[string]map[string]ErrorMessage
+	files   map[string]map[string]ErrorHandler
 	tooMany bool
 }
 
 func NewErrorMessages() ErrorMessages {
 	return ErrorMessages{
-		files: map[string]map[string]ErrorMessage{},
+		files: map[string]map[string]ErrorHandler{},
 	}
 }
 
@@ -158,13 +158,13 @@ func (mapping ErrorMessages) Print(stdout io.Writer) error {
 
 func (messages *ErrorMessages) AddWithType(errType, filename string, line []string) error {
 	if _, ok := messages.files[filename]; !ok {
-		messages.files[filename] = map[string]ErrorMessage{}
+		messages.files[filename] = map[string]ErrorHandler{}
 	}
 	errMap := messages.files[filename]
 
 	// Create a new message if the type does not exist
 	if _, ok := errMap[errType]; !ok {
-		var newMsg ErrorMessage
+		var newMsg ErrorHandler
 		switch {
 		case errType == errTypeMissingPackage:
 			// TODO: Make a custom handler. Add adds go gets, then output a fancy line

@@ -16,7 +16,7 @@ var stdlibImports = map[string]any{
 
 var errTypeMissingPackage = "missing package"
 
-type ErrorMessage interface {
+type ErrorHandler interface {
 	Print(io.Writer) error
 	Add([]string) error
 }
@@ -25,7 +25,7 @@ type defaultErrorHandler struct {
 	lines []string
 }
 
-func NewDefaultErrorHandler() ErrorMessage {
+func NewDefaultErrorHandler() ErrorHandler {
 	return &defaultErrorHandler{}
 }
 
@@ -48,7 +48,7 @@ type undefinedErrorHandler struct {
 	locations map[string][]Location
 }
 
-func NewUndefinedErrorHandler() ErrorMessage {
+func NewUndefinedErrorHandler() ErrorHandler {
 	return &undefinedErrorHandler{
 		locations: map[string][]Location{},
 	}
