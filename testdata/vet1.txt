@@ -1,0 +1,4 @@
+# github.com/ohhfishal/gopher/watch
+watch/errors.go:36:14: not enough arguments in call to fmt.Fprintf
+	have (string)
+	want (io.Writer, string, ...any)

@@ -1,9 +1,3 @@
 {"ImportPath":"github.com/ohhfishal/gopher","Action":"build-output","Output":"# github.com/ohhfishal/gopher\n"}
 {"ImportPath":"github.com/ohhfishal/gopher","Action":"build-output","Output":"./logger.go:18:5: undefined: Disabled\n"}
 {"ImportPath":"github.com/ohhfishal/gopher","Action":"build-fail"}
-{"ImportPath":"github.com/fsnotify/fsnotify","Action":"build-output","Output":"watch/watch.go:7:2: no required module provides package github.com/fsnotify/fsnotify; to add it:\n"}
-{"ImportPath":"github.com/fsnotify/fsnotify","Action":"build-output","Output":"\tgo get github.com/fsnotify/fsnotify\n"}
-{"ImportPath":"github.com/fsnotify/fsnotify","Action":"build-fail"}
-{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"# github.com/ohhfishal/gopher/watch\n"}
-{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/watch.go:34:37: undefined: fsnotify.Renamed\n"}
-{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-fail"}

@@ -1,4 +1,4 @@
-package watch
+package report
 
 import (
 	"fmt"
@@ -14,9 +14,33 @@ var stdlibImports = map[string]any{
 	"encoding/json": nil,
 }
 
+var errTypeMissingPackage = "missing package"
+
 type ErrorMessage interface {
 	Print(io.Writer) error
 	Add([]string) error
+}
+
+type defaultErrorHandler struct {
+	lines []string
+}
+
+func NewDefaultErrorHandler() ErrorMessage {
+	return &defaultErrorHandler{}
+}
+
+func (h *defaultErrorHandler) Print(stdout io.Writer) error {
+	for _, line := range h.lines {
+		if _, err := fmt.Fprintln(stdout, " ", line); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (h *defaultErrorHandler) Add(parts []string) error {
+	h.lines = append(h.lines, strings.Join(parts, ":"))
+	return nil
 }
 
 type undefinedErrorHandler struct {

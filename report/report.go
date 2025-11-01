@@ -1,4 +1,4 @@
-package watch
+package report
 
 import (
 	"bytes"
@@ -18,6 +18,23 @@ var (
 	Suggestion = color.New(color.FgHiBlack)
 )
 
+const (
+	BuildOutput = "build-output"
+	BuildFail   = "build-fail"
+)
+
+// From https://pkg.go.dev/cmd/go#hdr-Build__json_encoding
+type BuildEvent struct {
+	// TODO: Get the import path using go list -json. Then use that to truncate this one
+	ImportPath string
+	Action     string
+	Output     string
+
+	// The Action field is one of the following:
+	// build-output - The toolchain printed output
+	// build-fail - The build failed
+}
+
 // TODO: Mention to the user to report this if they can
 var ErrAssertion = errors.New("bug found: assertion failed")
 
@@ -25,11 +42,11 @@ func AssertFailed(reason string) error {
 	return fmt.Errorf(`%w: %s`, ErrAssertion, reason)
 }
 
-type ReportCMD struct {
+type CMD struct {
 	FileContent []byte `short:"f" default:"-" type:"filecontent" help:"File to read from. Use '-' for stdin."`
 }
 
-func (config *ReportCMD) Run(ctx context.Context, stdout io.Writer, logger *slog.Logger) error {
+func (config *CMD) Run(ctx context.Context, stdout io.Writer, logger *slog.Logger) error {
 	events, err := ParseBuildJSON(bytes.NewReader(config.FileContent))
 	if err != nil {
 		return fmt.Errorf("parsing build output: %w", err)
@@ -90,6 +107,13 @@ func OutputResults(events []BuildEvent, stdout io.Writer) error {
 func ParseBuildJSON(input io.Reader) ([]BuildEvent, error) {
 	events := []BuildEvent{}
 	decoder := json.NewDecoder(input)
+	// TODO: Handle go vet output which on happy case looks like:
+	// Looks like # is a comment
+	/*
+		# package
+		# [package]
+		{}
+	*/
 	for {
 		var event BuildEvent
 		if err := decoder.Decode(&event); err == io.EOF {
@@ -132,67 +156,71 @@ func (mapping ErrorMessages) Print(stdout io.Writer) error {
 	return nil
 }
 
-func (messages *ErrorMessages) Add(filename string, line string) error {
+func (messages *ErrorMessages) AddWithType(errType, filename string, line []string) error {
 	if _, ok := messages.files[filename]; !ok {
 		messages.files[filename] = map[string]ErrorMessage{}
 	}
 	errMap := messages.files[filename]
 
-	parts := strings.Split(line, ":")
-	if len(parts) < 3 {
-		// TODO: Make a better message
-		return AssertFailed("not enough parts: " + line)
-	}
-
-	errType := parts[2][1:]
 	// Create a new message if the type does not exist
 	if _, ok := errMap[errType]; !ok {
 		var newMsg ErrorMessage
-		switch errType {
-		case "too many errors":
+		switch {
+		case errType == errTypeMissingPackage:
+			// TODO: Make a custom handler. Add adds go gets, then output a fancy line
+			fallthrough
+		case strings.HasPrefix(errType, "no required module provides package"):
+			newMsg = NewDefaultErrorHandler()
+		case errType == "too many errors":
 			messages.tooMany = true
 			return nil
-		case "undefined":
+		case errType == "undefined":
 			newMsg = NewUndefinedErrorHandler()
 		default:
-			return fmt.Errorf("unknown error type: %s", errType)
+			return fmt.Errorf(`unknown error type: "%s"`, errType)
 		}
 		errMap[errType] = newMsg
 	}
 
-	if err := errMap[errType].Add(parts); err != nil {
+	if err := errMap[errType].Add(line); err != nil {
 		return fmt.Errorf("adding: %s: %w", errType, err)
 	}
 	return nil
 }
 
+func (messages *ErrorMessages) Add(filename string, line []string) error {
+	errType := filename
+	if len(line) >= 3 {
+		errType = line[2][1:]
+	}
+	return messages.AddWithType(errType, filename, line)
+}
+
 func aggregateErrors(importPath string, outputs []string) (*ErrorMessages, error) {
-	steps := strings.Split(importPath, "/")
-	child := steps[len(steps)-1] + "/"
-
 	errorMsgs := NewErrorMessages()
+	var filename string
 	for _, output := range outputs {
-		// Filter files that restate import path
-		if strings.HasPrefix(output, "#") {
-			continue
-		}
+		if strings.HasPrefix(output, "\tgo get") {
+			if err := errorMsgs.AddWithType(
+				errTypeMissingPackage,
+				filename,
+				[]string{output},
+			); err != nil {
+				// TODO: Fix
+				return nil, err
+			}
+		} else if !strings.HasPrefix(output, "#") {
+			parts := strings.Split(output, ":")
+			if len(parts) < 4 {
+				return nil, fmt.Errorf(`missing colons "%s"`, output)
+			}
+			filename = parts[0]
+			line := parts[1:]
 
-		pretty, ok := strings.CutPrefix(output, child)
-		if !ok {
-			return nil, AssertFailed(`output does not start with same package`)
-		}
-
-		colonIndex := strings.IndexRune(pretty, ':')
-		if colonIndex == -1 {
-			// TODO: Fix
-			return nil, AssertFailed(`colon missing`)
-		}
-
-		filename := pretty[:colonIndex]
-		line := pretty[colonIndex+2:]
-		if err := errorMsgs.Add(filename, line); err != nil {
-			// TODO: Fix
-			return nil, err
+			if err := errorMsgs.Add(filename, line); err != nil {
+				// TODO: Fix
+				return nil, err
+			}
 		}
 	}
 	return &errorMsgs, nil

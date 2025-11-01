@@ -9,13 +9,14 @@ import (
 	"syscall"
 
 	"github.com/alecthomas/kong"
+	"github.com/ohhfishal/gopher/report"
 	"github.com/ohhfishal/gopher/watch"
 )
 
 type Cmd struct {
-	LogConfig LogConfig       `embed:""`
-	Report    watch.ReportCMD `cmd:"" default:"withargs" help:"Output build report."`
-	Watch     watch.CMD       `cmd:"" help:"Watch for changes and rebuild"`
+	LogConfig LogConfig  `embed:""`
+	Report    report.CMD `cmd:"" default:"withargs" help:"Output build report."`
+	Watch     watch.CMD  `cmd:"" help:"Watch for changes and rebuild"`
 }
 
 func main() {

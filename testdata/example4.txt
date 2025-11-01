@@ -1,0 +1,3 @@
+{"ImportPath":"github.com/fsnotify/fsnotify","Action":"build-output","Output":"watch/watch.go:7:2: no required module provides package github.com/fsnotify/fsnotify; to add it:\n"}
+{"ImportPath":"github.com/fsnotify/fsnotify","Action":"build-output","Output":"\tgo get github.com/fsnotify/fsnotify\n"}
+{"ImportPath":"github.com/fsnotify/fsnotify","Action":"build-fail"}

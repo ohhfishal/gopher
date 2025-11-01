@@ -4,28 +4,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/ohhfishal/gopher/report"
 	"log/slog"
 	"os/exec"
 )
 
-type BuildFunc func(context.Context, string) ([]BuildEvent, error)
-
-const (
-	BuildOutput = "build-output"
-	BuildFail   = "build-fail"
-)
-
-// From https://pkg.go.dev/cmd/go#hdr-Build__json_encoding
-type BuildEvent struct {
-	// TODO: Get the import path using go list -json. Then use that to truncate this one
-	ImportPath string
-	Action     string
-	Output     string
-
-	// The Action field is one of the following:
-	// build-output - The toolchain printed output
-	// build-fail - The build failed
-}
+type BuildFunc func(context.Context, string) ([]report.BuildEvent, error)
 
 func (config CMD) Build(ctx context.Context, logger *slog.Logger, build BuildFunc) {
 	events, err := build(ctx, config.Path)
@@ -40,7 +24,7 @@ func (config CMD) Build(ctx context.Context, logger *slog.Logger, build BuildFun
 	// Repeat with other steps
 }
 
-func goBuild(ctx context.Context, path string) ([]BuildEvent, error) {
+func goBuild(ctx context.Context, path string) ([]report.BuildEvent, error) {
 	// TODO: Provide options to add more flags
 	cmd := exec.CommandContext(ctx, "go", "build", "-json")
 	cmd.Dir = path
@@ -52,8 +36,8 @@ func goBuild(ctx context.Context, path string) ([]BuildEvent, error) {
 		}
 	}
 	if err == nil || len(output) == 0 {
-		return []BuildEvent{}, nil
+		return []report.BuildEvent{}, nil
 	}
 
-	return ParseBuildJSON(bytes.NewReader(output))
+	return report.ParseBuildJSON(bytes.NewReader(output))
 }
