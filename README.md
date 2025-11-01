@@ -1,11 +1,11 @@
-# gopher
+ gopher
 
 Better `go build` output.
 
 ## Usuage
 
 ```bash
-go build -json | ./gopher
+go build -json | gopher
 ```
 
 
