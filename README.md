@@ -1,4 +1,4 @@
- gopher
+# gopher
 
 Better `go build` output.
 
