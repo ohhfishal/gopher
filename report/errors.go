@@ -6,14 +6,6 @@ import (
 	"strings"
 )
 
-var stdlibImports = map[string]any{
-	// TODO: Maybe make this check the go.mod too?
-	"fmt":           nil,
-	"io":            nil,
-	"errors":        nil,
-	"encoding/json": nil,
-}
-
 var errTypeMissingPackage = "missing package"
 
 type ErrorHandler interface {
@@ -60,8 +52,8 @@ func (h *undefinedErrorHandler) Print(stdout io.Writer) error {
 
 	var potentialImports []string
 	for _, symbol := range h.symbols {
-		if _, ok := stdlibImports[symbol]; ok {
-			potentialImports = append(potentialImports, symbol)
+		if packagePath, ok := stdlibPackages[symbol]; ok {
+			potentialImports = append(potentialImports, packagePath)
 		}
 		if _, err := fmt.Fprintln(stdout, "   ", symbol, LocationsString(h.locations[symbol])); err != nil {
 			return err
