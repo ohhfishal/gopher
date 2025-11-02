@@ -6,6 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"io"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -19,6 +21,7 @@ func TestExamples(t *testing.T) {
 		"example5.txt",
 	}
 
+	tempDir := t.TempDir()
 	for _, filename := range tests {
 		t.Run(filename, func(t *testing.T) {
 			assert := assert.New(t)
@@ -26,10 +29,14 @@ func TestExamples(t *testing.T) {
 			assert.Nil(err, "opening file")
 			defer file.Close() //nolint: errcheck
 
-			bytes, err := io.ReadAll(file)
+			content, err := io.ReadAll(file)
 			assert.Nil(err, "reading bytes")
+
+			tempFile := filepath.Join(tempDir, filename)
+			assert.Nil(os.WriteFile(tempFile, content, 0644))
+
 			cmd := report.CMD{
-				FileContent: bytes,
+				File: tempFile,
 			}
 			var stdout strings.Builder
 			logger := slog.Default()

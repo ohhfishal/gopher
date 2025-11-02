@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	_ "embed"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -13,9 +15,15 @@ import (
 	// "github.com/ohhfishal/gopher/watch"
 )
 
+//go:embed version.txt
+var version string
+
+var ErrDone = errors.New("program ready to exit")
+
 type Cmd struct {
-	LogConfig LogConfig  `embed:""`
-	Report    report.CMD `cmd:"" default:"withargs" help:"Output build report."`
+	Version   VersionFlag `short:"v" help:"Print out version and exit."`
+	LogConfig LogConfig   `embed:"" group:"Logging Flags:"`
+	Report    report.CMD  `cmd:"" group:"" default:"withargs" help:"Output build report."`
 	// Watch     watch.CMD  `cmd:"" help:"Watch for changes and rebuild"`
 }
 
@@ -38,8 +46,17 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 	parser, err := kong.New(
 		&cmd,
 		kong.Exit(func(_ int) { exit = true }),
+		kong.Help(func(opts kong.HelpOptions, ctx *kong.Context) error {
+			if err := kong.DefaultHelpPrinter(opts, ctx); err != nil {
+				return err
+			}
+			return fmt.Errorf("%w: %s", ErrDone, "help called")
+		}),
 		kong.BindTo(ctx, new(context.Context)),
 		kong.BindTo(stdout, new(io.Writer)),
+		kong.Vars{
+			"version": version,
+		},
 	)
 	if err != nil {
 		return err
@@ -51,7 +68,9 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 	context, err := parser.Parse(
 		os.Args[1:],
 	)
-	if err != nil || exit {
+	if errors.Is(err, ErrDone) {
+		return nil
+	} else if err != nil || exit {
 		return err
 	}
 
@@ -62,4 +81,13 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 		return nil
 	}
 	return nil
+}
+
+type VersionFlag bool
+
+func (v VersionFlag) BeforeReset(app *kong.Kong, vars kong.Vars) error {
+	if _, err := fmt.Fprint(app.Stdout, vars["version"]); err != nil {
+		return err
+	}
+	return fmt.Errorf("%s: %w", "printed version", ErrDone)
 }

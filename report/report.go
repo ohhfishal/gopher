@@ -1,7 +1,6 @@
 package report
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -9,6 +8,7 @@ import (
 	"github.com/fatih/color"
 	"io"
 	"log/slog"
+	"os"
 	"strings"
 )
 
@@ -43,11 +43,26 @@ func AssertFailed(reason string) error {
 }
 
 type CMD struct {
-	FileContent []byte `short:"f" default:"-" type:"filecontent" help:"File to read from. Use '-' for stdin."`
+	File string `arg:"" group:"Reporting Flags:" default:"-" type:"existingfile" help:"File to read from. Use '-' for stdin. (default=\"${default}\")"`
+}
+
+func (config *CMD) AfterApply(ctx context.Context) error {
+	return nil
 }
 
 func (config *CMD) Run(ctx context.Context, stdout io.Writer, logger *slog.Logger) error {
-	events, err := ParseBuildJSON(bytes.NewReader(config.FileContent))
+	var file io.Reader
+	if config.File == "-" {
+		file = os.Stdin
+	} else {
+		var err error
+		file, err = os.Open(config.File)
+		if err != nil {
+			return err
+		}
+	}
+
+	events, err := ParseBuildJSON(file)
 	if err != nil {
 		return fmt.Errorf("parsing build output: %w", err)
 	}
