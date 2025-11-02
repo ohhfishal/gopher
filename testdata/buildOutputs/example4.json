@@ -1,0 +1,3 @@
+{"ImportPath":"command-line-arguments","Action":"build-output","Output":"# command-line-arguments\n"}
+{"ImportPath":"command-line-arguments","Action":"build-output","Output":"testdata/go/example4.go:8:14: undefined: undefinedVariable\n"}
+{"ImportPath":"command-line-arguments","Action":"build-fail"}

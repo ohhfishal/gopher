@@ -1,0 +1,2 @@
+{"ImportPath":"testmodule","Action":"build-output","Output":"main.go:7:6: expected 'IDENT', found 'EOF'\n"}
+{"ImportPath":"testmodule","Action":"build-fail"}

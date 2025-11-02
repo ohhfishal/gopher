@@ -1,0 +1,2 @@
+{"ImportPath":"testmodule","Action":"build-output","Output":"main.go:5:1: missing import path\n"}
+{"ImportPath":"testmodule","Action":"build-fail"}

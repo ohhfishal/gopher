@@ -1,0 +1,3 @@
+{"ImportPath":"testmodule","Action":"build-output","Output":"# testmodule\n"}
+{"ImportPath":"testmodule","Action":"build-output","Output":"./main.go:8:12: invalid operation: x + y (mismatched types int and string)\n"}
+{"ImportPath":"testmodule","Action":"build-fail"}

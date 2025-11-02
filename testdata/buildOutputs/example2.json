@@ -1,0 +1,2 @@
+{"ImportPath":"command-line-arguments","Action":"build-output","Output":"testdata/go/example2.go:7:6: expected 'IDENT', found 'EOF'\n"}
+{"ImportPath":"command-line-arguments","Action":"build-fail"}

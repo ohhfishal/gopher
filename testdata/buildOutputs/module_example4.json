@@ -1,0 +1,3 @@
+{"ImportPath":"testmodule","Action":"build-output","Output":"# testmodule\n"}
+{"ImportPath":"testmodule","Action":"build-output","Output":"./main.go:8:14: undefined: undefinedVariable\n"}
+{"ImportPath":"testmodule","Action":"build-fail"}

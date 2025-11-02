@@ -1,0 +1,5 @@
+{"ImportPath":"testmodule","Action":"build-output","Output":"# testmodule\n"}
+{"ImportPath":"testmodule","Action":"build-output","Output":"./main.go:7:9: too many return values\n"}
+{"ImportPath":"testmodule","Action":"build-output","Output":"\thave (number)\n"}
+{"ImportPath":"testmodule","Action":"build-output","Output":"\twant ()\n"}
+{"ImportPath":"testmodule","Action":"build-fail"}

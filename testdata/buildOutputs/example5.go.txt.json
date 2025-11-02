@@ -1,0 +1,2 @@
+{"ImportPath":"testdata/go/example5.go.txt","Action":"build-output","Output":"package testdata/go/example5.go.txt is not in std (/nix/store/k1kn1c59ss7nq6agdppzq3krwmi3xqy4-go-1.25.2/share/go/src/testdata/go/example5.go.txt)\n"}
+{"ImportPath":"testdata/go/example5.go.txt","Action":"build-fail"}
