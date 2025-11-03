@@ -187,6 +187,7 @@ func (messages *ErrorMessages) AddWithType(errType, filename string, line []stri
 		var newMsg ErrorHandler
 		switch {
 		case errType == errTypePackageNotInStd:
+			// TODO: Check if this is a package that exists?
 			newMsg = NewDefaultErrorHandler()
 		case errType == errTypeMissingPackage:
 			// TODO: Make a custom handler. Add adds go gets, then output a fancy line
@@ -197,27 +198,27 @@ func (messages *ErrorMessages) AddWithType(errType, filename string, line []stri
 		case errType == "undefined":
 			newMsg = NewUndefinedErrorHandler()
 		case strings.HasPrefix(errType, "too many return values"):
+			// TODO: Use red to denote types to remove and green for types to add
 			newMsg = NewDefaultErrorHandler()
 		case len(line) > 0 && strings.HasPrefix(line[0], "package"):
 			newMsg = NewDefaultErrorHandler()
 		case strings.HasPrefix(errType, "cannot use"):
+			// TODO: Color based on types?
 			newMsg = NewDefaultErrorHandler()
 		case strings.HasPrefix(errType, "syntax error"):
+			// TODO: Highlight Syntax error since this is the easiest fix
 			newMsg = NewDefaultErrorHandler()
 		case strings.HasPrefix(errType, "missing import path"):
 			newMsg = NewDefaultErrorHandler()
 		case strings.HasPrefix(errType, "expected"):
+			// TODO: Color 'INDENT' and found 'EOF' parts
 			newMsg = NewDefaultErrorHandler()
 		case strings.HasPrefix(errType, "invalid operation"):
+			// TODO: Color based on types
+			// TODO: Replace x and y operands with their types
 			newMsg = NewDefaultErrorHandler()
 		case strings.HasPrefix(errType, "no required module provides package"):
 			newMsg = NewDefaultErrorHandler()
-		// case strings.HasPrefix(errType, "\tgo get"):
-		// 	newMsg = NewDefaultErrorHandler()
-		// case strings.HasPrefix(errType, "\thave"):
-		// 	newMsg = NewDefaultErrorHandler()
-		// case strings.HasPrefix(errType, "\twant"):
-		// 	newMsg = NewDefaultErrorHandler()
 		default:
 			return fmt.Errorf(`unknown error type: "%s"`, errType)
 		}
