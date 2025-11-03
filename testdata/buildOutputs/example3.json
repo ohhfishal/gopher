@@ -1,3 +1,3 @@
 {"ImportPath":"command-line-arguments","Action":"build-output","Output":"# command-line-arguments\n"}
-{"ImportPath":"command-line-arguments","Action":"build-output","Output":"testdata/go/example3.go:6:32: syntax error: unexpected newline in argument list; possibly missing comma or )\n"}
+{"ImportPath":"command-line-arguments","Action":"build-output","Output":"/tmp/tmp.06BH1km0sL/example3.go:6:32: syntax error: unexpected newline in argument list; possibly missing comma or )\n"}
 {"ImportPath":"command-line-arguments","Action":"build-fail"}

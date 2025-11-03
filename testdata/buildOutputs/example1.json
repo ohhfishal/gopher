@@ -1,2 +1,2 @@
-{"ImportPath":"command-line-arguments","Action":"build-output","Output":"testdata/go/example1.go:5:1: missing import path\n"}
+{"ImportPath":"command-line-arguments","Action":"build-output","Output":"/tmp/tmp.06BH1km0sL/example1.go:5:1: missing import path\n"}
 {"ImportPath":"command-line-arguments","Action":"build-fail"}

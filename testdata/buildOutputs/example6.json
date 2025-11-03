@@ -1,5 +1,5 @@
 {"ImportPath":"command-line-arguments","Action":"build-output","Output":"# command-line-arguments\n"}
-{"ImportPath":"command-line-arguments","Action":"build-output","Output":"testdata/go/example6.go:7:9: too many return values\n"}
+{"ImportPath":"command-line-arguments","Action":"build-output","Output":"/tmp/tmp.06BH1km0sL/example6.go:7:9: too many return values\n"}
 {"ImportPath":"command-line-arguments","Action":"build-output","Output":"\thave (number)\n"}
 {"ImportPath":"command-line-arguments","Action":"build-output","Output":"\twant ()\n"}
 {"ImportPath":"command-line-arguments","Action":"build-fail"}

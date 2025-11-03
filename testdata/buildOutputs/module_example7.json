@@ -1,3 +1,0 @@
-{"ImportPath":"testmodule","Action":"build-output","Output":"# testmodule\n"}
-{"ImportPath":"testmodule","Action":"build-output","Output":"./main.go:6:5: syntax error: non-declaration statement outside function body\n"}
-{"ImportPath":"testmodule","Action":"build-fail"}

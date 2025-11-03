@@ -1,3 +1,3 @@
 {"ImportPath":"command-line-arguments","Action":"build-output","Output":"# command-line-arguments\n"}
-{"ImportPath":"command-line-arguments","Action":"build-output","Output":"testdata/go/example8.go:8:12: invalid operation: x + y (mismatched types int and string)\n"}
+{"ImportPath":"command-line-arguments","Action":"build-output","Output":"/tmp/tmp.06BH1km0sL/example8.go:8:12: invalid operation: x + y (mismatched types int and string)\n"}
 {"ImportPath":"command-line-arguments","Action":"build-fail"}
