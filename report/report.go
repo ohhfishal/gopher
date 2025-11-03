@@ -18,6 +18,11 @@ var (
 	Suggestion = color.New(color.FgHiBlack)
 )
 
+var (
+	ColorRemove = color.RedString
+	ColorAdd    = color.GreenString
+)
+
 const (
 	BuildOutput = "build-output"
 	BuildFail   = "build-fail"
@@ -197,9 +202,11 @@ func (messages *ErrorMessages) AddWithType(errType, filename string, line []stri
 			return nil
 		case errType == "undefined":
 			newMsg = NewUndefinedErrorHandler()
+		case strings.HasPrefix(errType, "not enough return values"):
+			fallthrough
 		case strings.HasPrefix(errType, "too many return values"):
 			// TODO: Use red to denote types to remove and green for types to add
-			newMsg = NewDefaultErrorHandler()
+			newMsg = &badReturnValuesHandler{}
 		case len(line) > 0 && strings.HasPrefix(line[0], "package"):
 			newMsg = NewDefaultErrorHandler()
 		case strings.HasPrefix(errType, "cannot use"):

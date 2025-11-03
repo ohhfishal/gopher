@@ -1,0 +1,5 @@
+{"ImportPath":"command-line-arguments","Action":"build-output","Output":"# command-line-arguments\n"}
+{"ImportPath":"command-line-arguments","Action":"build-output","Output":"/tmp/tmp.x3lHIMDL1r/example9.go:8:10: not enough return values\n"}
+{"ImportPath":"command-line-arguments","Action":"build-output","Output":"\thave (number)\n"}
+{"ImportPath":"command-line-arguments","Action":"build-output","Output":"\twant (string, int)\n"}
+{"ImportPath":"command-line-arguments","Action":"build-fail"}

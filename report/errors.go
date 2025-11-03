@@ -109,3 +109,56 @@ func LocationsString(locations []Location) string {
 	return body
 
 }
+
+type badReturnValuesHandler struct {
+	lines []string
+}
+
+func (h *badReturnValuesHandler) Print(stdout io.Writer) error {
+	if len(h.lines) != 3 {
+		return fmt.Errorf("did not get all lines needed: %s", h.lines)
+	}
+
+	haves := strings.Split(
+		h.lines[1][strings.IndexRune(h.lines[1], '(')+1:strings.IndexRune(h.lines[1], ')')],
+		", ",
+	)
+	needs := strings.Split(
+		h.lines[2][strings.IndexRune(h.lines[2], '(')+1:strings.IndexRune(h.lines[2], ')')],
+		", ",
+	)
+
+	for i, str := range haves {
+		if i >= len(needs) {
+			haves[i] = ColorRemove(str)
+		} else if needs[i] != str {
+			haves[i] = ColorRemove(str)
+		}
+	}
+
+	for i, str := range needs {
+		if i >= len(haves) {
+			needs[i] = ColorAdd(str)
+		} else if haves[i] != str {
+			needs[i] = ColorAdd(str)
+		}
+	}
+
+	if _, err := fmt.Fprintln(stdout, " ", h.lines[0]); err != nil {
+		return err
+	}
+
+	if _, err := fmt.Fprintf(stdout, "\t have(%s)\n", strings.Join(haves, ", ")); err != nil {
+		return err
+	}
+
+	if _, err := fmt.Fprintf(stdout, "\t need(%s)\n", strings.Join(needs, ", ")); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *badReturnValuesHandler) Add(parts []string) error {
+	h.lines = append(h.lines, strings.Join(parts, ":"))
+	return nil
+}
