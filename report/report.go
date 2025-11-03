@@ -52,13 +52,13 @@ func (config *CMD) AfterApply(ctx context.Context) error {
 
 func (config *CMD) Run(ctx context.Context, stdout io.Writer, logger *slog.Logger) error {
 	var file io.Reader
-	if config.File == "-" {
+	if config.File == "-" || config.File == "" {
 		file = os.Stdin
 	} else {
 		var err error
 		file, err = os.Open(config.File)
 		if err != nil {
-			return err
+			return fmt.Errorf(`could not open file: "%s": %w`, config.File, err)
 		}
 	}
 
@@ -142,8 +142,9 @@ func ParseBuildJSON(input io.Reader) ([]BuildEvent, error) {
 }
 
 type ErrorMessages struct {
-	files   map[string]map[string]ErrorHandler
-	tooMany bool
+	files        map[string]map[string]ErrorHandler
+	tooMany      bool
+	errTypeCache string
 }
 
 func NewErrorMessages() ErrorMessages {
@@ -177,20 +178,46 @@ func (messages *ErrorMessages) AddWithType(errType, filename string, line []stri
 	}
 	errMap := messages.files[filename]
 
+	if errType == "" {
+		errType = messages.errTypeCache
+	}
+
 	// Create a new message if the type does not exist
 	if _, ok := errMap[errType]; !ok {
 		var newMsg ErrorHandler
 		switch {
+		case errType == errTypePackageNotInStd:
+			newMsg = NewDefaultErrorHandler()
 		case errType == errTypeMissingPackage:
 			// TODO: Make a custom handler. Add adds go gets, then output a fancy line
-			fallthrough
-		case strings.HasPrefix(errType, "no required module provides package"):
 			newMsg = NewDefaultErrorHandler()
 		case errType == "too many errors":
 			messages.tooMany = true
 			return nil
 		case errType == "undefined":
 			newMsg = NewUndefinedErrorHandler()
+		case strings.HasPrefix(errType, "too many return values"):
+			newMsg = NewDefaultErrorHandler()
+		case len(line) > 0 && strings.HasPrefix(line[0], "package"):
+			newMsg = NewDefaultErrorHandler()
+		case strings.HasPrefix(errType, "cannot use"):
+			newMsg = NewDefaultErrorHandler()
+		case strings.HasPrefix(errType, "syntax error"):
+			newMsg = NewDefaultErrorHandler()
+		case strings.HasPrefix(errType, "missing import path"):
+			newMsg = NewDefaultErrorHandler()
+		case strings.HasPrefix(errType, "expected"):
+			newMsg = NewDefaultErrorHandler()
+		case strings.HasPrefix(errType, "invalid operation"):
+			newMsg = NewDefaultErrorHandler()
+		case strings.HasPrefix(errType, "no required module provides package"):
+			newMsg = NewDefaultErrorHandler()
+		// case strings.HasPrefix(errType, "\tgo get"):
+		// 	newMsg = NewDefaultErrorHandler()
+		// case strings.HasPrefix(errType, "\thave"):
+		// 	newMsg = NewDefaultErrorHandler()
+		// case strings.HasPrefix(errType, "\twant"):
+		// 	newMsg = NewDefaultErrorHandler()
 		default:
 			return fmt.Errorf(`unknown error type: "%s"`, errType)
 		}
@@ -200,43 +227,42 @@ func (messages *ErrorMessages) AddWithType(errType, filename string, line []stri
 	if err := errMap[errType].Add(line); err != nil {
 		return fmt.Errorf("adding: %s: %w", errType, err)
 	}
+	messages.errTypeCache = errType
 	return nil
-}
-
-func (messages *ErrorMessages) Add(filename string, line []string) error {
-	errType := filename
-	if len(line) >= 3 {
-		errType = line[2][1:]
-	}
-	return messages.AddWithType(errType, filename, line)
 }
 
 func aggregateErrors(importPath string, outputs []string) (*ErrorMessages, error) {
 	errorMsgs := NewErrorMessages()
 	var filename string
 	for _, output := range outputs {
-		if strings.HasPrefix(output, "\tgo get") {
-			if err := errorMsgs.AddWithType(
-				errTypeMissingPackage,
-				filename,
-				[]string{output},
-			); err != nil {
-				// TODO: Fix
-				return nil, err
+		parts := strings.Split(output, ":")
+		if len(parts) < 4 {
+			if err := errorMsgs.AddWithType("", filename, parts); err != nil {
+				return nil, fmt.Errorf(`could not infer type for "%s": %w`, output, err)
 			}
-		} else if !strings.HasPrefix(output, "#") {
-			parts := strings.Split(output, ":")
-			if len(parts) < 4 {
-				return nil, fmt.Errorf(`missing colons "%s"`, output)
-			}
-			filename = parts[0]
-			line := parts[1:]
+			continue
+		}
+		filename = parts[0]
+		line := parts[1:]
 
-			if err := errorMsgs.Add(filename, line); err != nil {
-				// TODO: Fix
-				return nil, err
-			}
+		errType := filename
+		if len(line) >= 3 {
+			errType = line[2][1:]
+		}
+
+		if err := errorMsgs.AddWithType(errType, filename, line); err != nil {
+			// TODO: Fix
+			return nil, err
 		}
 	}
 	return &errorMsgs, nil
 }
+
+// func (messages *ErrorMessages) Add(filename string, line []string) error {
+// 	errType := filename
+// 	if len(line) >= 3 {
+// 		errType = line[2][1:]
+// 	}
+// 	return messages.AddWithType(errType, filename, line)
+// }
+//

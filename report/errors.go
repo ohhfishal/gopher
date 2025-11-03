@@ -7,6 +7,7 @@ import (
 )
 
 var errTypeMissingPackage = "missing package"
+var errTypePackageNotInStd = "package not in stdlib"
 
 type ErrorHandler interface {
 	Print(io.Writer) error

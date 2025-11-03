@@ -65,7 +65,7 @@ func TestBuildOutputs(t *testing.T) {
 
 			file, err := testdata.FS.Open(filepath.Join("buildOutputs", entry.Name()))
 			assert.Nil(err, "opening file")
-			defer file.Close()
+			defer file.Close() //nolint: errcheck
 
 			content, err := io.ReadAll(file)
 			assert.Nil(err, "reading bytes")
