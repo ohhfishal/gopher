@@ -3,7 +3,7 @@
 mkdir -p testdata/buildOutputs
 
 tmpdir=$(mktemp -d)
-trap "rm -rf $tmpdir" EXIT
+trap 'rm -rf $tmpdir' EXIT
 
 for tmplfile in testdata/go/*.tmpl; do
     [ -e "$tmplfile" ] || continue
@@ -15,7 +15,7 @@ for tmplfile in testdata/go/*.tmpl; do
     cp "$tmplfile" "$gofile"
     
     # Build and capture output
-    go build -json "$gofile" 2>&1 > "testdata/buildOutputs/${basename}.json"
+    { go build -json "$gofile" > "testdata/buildOutputs/${basename}.json"; } 2>&1
     echo "$tmplfile -> testdata/buildOutputs/${basename}.json"
 done
 
