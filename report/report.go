@@ -202,9 +202,11 @@ func (messages *ErrorMessages) AddWithType(errType, filename string, line []stri
 			return nil
 		case errType == "undefined":
 			newMsg = NewUndefinedErrorHandler()
-		case strings.HasPrefix(errType, "not enough return values"):
+		case strings.HasPrefix(errType, "not enough"):
+			// TODO: Also handle too mmany arguments...
 			fallthrough
-		case strings.HasPrefix(errType, "too many return values"):
+			// case strings.HasPrefix(errType, "not enough return values"):
+		case strings.HasPrefix(errType, "too many"):
 			// TODO: Use red to denote types to remove and green for types to add
 			newMsg = &badReturnValuesHandler{}
 		case len(line) > 0 && strings.HasPrefix(line[0], "package"):
@@ -223,6 +225,7 @@ func (messages *ErrorMessages) AddWithType(errType, filename string, line []stri
 		case strings.HasPrefix(errType, "invalid operation"):
 			// TODO: Color based on types
 			// TODO: Replace x and y operands with their types
+			// TODO: Case: Cannot sesnd on recieve only channel
 			newMsg = NewDefaultErrorHandler()
 		case strings.HasPrefix(errType, "no required module provides package"):
 			newMsg = NewDefaultErrorHandler()
