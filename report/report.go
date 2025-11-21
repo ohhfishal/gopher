@@ -202,6 +202,9 @@ func (messages *ErrorMessages) AddWithType(errType, filename string, line []stri
 			return nil
 		case errType == "undefined":
 			newMsg = NewUndefinedErrorHandler()
+		case strings.Contains(errType, "undefined"):
+			// TODO: Make this handled better
+			newMsg = NewDefaultErrorHandler()
 		case strings.HasPrefix(errType, "not enough"):
 			// TODO: Also handle too mmany arguments...
 			fallthrough

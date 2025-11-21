@@ -10,9 +10,9 @@ import (
 type LogConfig struct {
 	Disable     bool       `help:"Disable logging. Shorthand for handler=discard."`
 	HandlerType string     `name:"handler" enum:"json,discard,text" env:"HANDLER" default:"json" help:"Handler to use (${enum}) (env=$$${env})"`
-	Level       slog.Level `default:"info"`
-	AddSource   bool       `default:"false"`
-	SetDefault  bool       `default:"true" help:"Set the global slog logger to usse this config."`
+	Level       slog.Level `default:"INFO" enum:"WARN,ERROR,INFO,DEBUG" help:"Set logging level (${enum})."`
+	AddSource   bool       `default:"false" help:"Sets AddSource in the slog handler."`
+	SetDefault  bool       `default:"true" help:"Set the global slog logger to use this config."`
 }
 
 func (config *LogConfig) AfterApply() error {

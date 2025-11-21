@@ -12,6 +12,7 @@ import (
 
 	"github.com/alecthomas/kong"
 	"github.com/ohhfishal/gopher/report"
+	konghelp "github.com/ohhfishal/kong-help"
 	// "github.com/ohhfishal/gopher/watch"
 )
 
@@ -46,12 +47,13 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 	parser, err := kong.New(
 		&cmd,
 		kong.Exit(func(_ int) { exit = true }),
-		kong.Help(func(opts kong.HelpOptions, ctx *kong.Context) error {
-			if err := kong.DefaultHelpPrinter(opts, ctx); err != nil {
-				return err
-			}
-			return fmt.Errorf("%w: %s", ErrDone, "help called")
-		}),
+		konghelp.Help(),
+		// kong.Help(func(opts kong.HelpOptions, ctx *kong.Context) error {
+		// 	if err := kong.DefaultHelpPrinter(opts, ctx); err != nil {
+		// 		return err
+		// 	}
+		// 	return fmt.Errorf("%w: %s", ErrDone, "help called")
+		// }),
 		kong.BindTo(ctx, new(context.Context)),
 		kong.BindTo(stdout, new(io.Writer)),
 		kong.Vars{
