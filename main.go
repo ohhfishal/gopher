@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -25,6 +26,7 @@ type Cmd struct {
 	Version   VersionFlag `short:"v" help:"Print out version and exit."`
 	LogConfig LogConfig   `embed:"" group:"Logging Flags:"`
 	Report    report.CMD  `cmd:"" group:"" default:"withargs" help:"Output build report."`
+	Debug     bool        `help:"Turn on debugging features."`
 	// Watch     watch.CMD  `cmd:"" help:"Watch for changes and rebuild"`
 }
 
@@ -48,12 +50,6 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 		&cmd,
 		kong.Exit(func(_ int) { exit = true }),
 		konghelp.Help(),
-		// kong.Help(func(opts kong.HelpOptions, ctx *kong.Context) error {
-		// 	if err := kong.DefaultHelpPrinter(opts, ctx); err != nil {
-		// 		return err
-		// 	}
-		// 	return fmt.Errorf("%w: %s", ErrDone, "help called")
-		// }),
 		kong.BindTo(ctx, new(context.Context)),
 		kong.BindTo(stdout, new(io.Writer)),
 		kong.Vars{
@@ -74,6 +70,10 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 		return nil
 	} else if err != nil || exit {
 		return err
+	}
+
+	if cmd.Debug {
+		cmd.LogConfig.Level = slog.LevelDebug
 	}
 
 	logger := cmd.LogConfig.NewLogger(stdout)

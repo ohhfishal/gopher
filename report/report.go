@@ -15,7 +15,8 @@ import (
 var (
 	Success    = color.New(color.FgGreen)
 	Error      = color.New(color.FgRed)
-	Suggestion = color.New(color.FgHiBlack)
+	Suggestion = color.New(color.FgHiBlack).SprintFunc()
+	Highlight  = color.New(color.FgYellow).SprintFunc()
 )
 
 var (
@@ -191,49 +192,49 @@ func (messages *ErrorMessages) AddWithType(errType, filename string, line []stri
 	if _, ok := errMap[errType]; !ok {
 		var newMsg ErrorHandler
 		switch {
-		case errType == errTypePackageNotInStd:
-			// TODO: Check if this is a package that exists?
-			newMsg = NewDefaultErrorHandler()
-		case errType == errTypeMissingPackage:
-			// TODO: Make a custom handler. Add adds go gets, then output a fancy line
-			newMsg = NewDefaultErrorHandler()
 		case errType == "too many errors":
 			messages.tooMany = true
 			return nil
 		case errType == "undefined":
-			newMsg = NewUndefinedErrorHandler()
+			newMsg = NewAggregateHandler(errType+":", 3, UndefinedSuggestion)
+		case errType == "declared and not used":
+			newMsg = NewAggregateHandler(errType+":", 3, nil)
 		case strings.Contains(errType, "undefined"):
-			// TODO: Make this handled better
-			newMsg = NewDefaultErrorHandler()
-		case strings.HasPrefix(errType, "not enough"):
-			// TODO: Also handle too mmany arguments...
 			fallthrough
-			// case strings.HasPrefix(errType, "not enough return values"):
+		case strings.HasPrefix(errType, "not enough"):
+			fallthrough
 		case strings.HasPrefix(errType, "too many"):
 			// TODO: Use red to denote types to remove and green for types to add
 			newMsg = &badReturnValuesHandler{}
-		case len(line) > 0 && strings.HasPrefix(line[0], "package"):
-			newMsg = NewDefaultErrorHandler()
-		case strings.HasPrefix(errType, "cannot use"):
-			// TODO: Color based on types?
-			newMsg = NewDefaultErrorHandler()
-		case strings.HasPrefix(errType, "syntax error"):
-			// TODO: Highlight Syntax error since this is the easiest fix
-			newMsg = NewDefaultErrorHandler()
-		case strings.HasPrefix(errType, "missing import path"):
-			newMsg = NewDefaultErrorHandler()
-		case strings.HasPrefix(errType, "expected"):
-			// TODO: Color 'INDENT' and found 'EOF' parts
-			newMsg = NewDefaultErrorHandler()
-		case strings.HasPrefix(errType, "invalid operation"):
-			// TODO: Color based on types
-			// TODO: Replace x and y operands with their types
-			// TODO: Case: Cannot sesnd on recieve only channel
-			newMsg = NewDefaultErrorHandler()
-		case strings.HasPrefix(errType, "no required module provides package"):
-			newMsg = NewDefaultErrorHandler()
+		// case errType == errTypePackageNotInStd:
+		// 	// TODO: Check if this is a package that exists?
+		// 	fallthrough
+		// case errType == errTypeMissingPackage:
+		// 	// TODO: Make a custom handler. Add adds go gets, then output a fancy line
+		// 	fallthrough
+		// case len(line) > 0 && strings.HasPrefix(line[0], "package"):
+		// 	fallthrough
+		// case strings.HasPrefix(errType, "cannot use"):
+		// 	// TODO: Color based on types?
+		// 	fallthrough
+		// case strings.HasPrefix(errType, "syntax error"):
+		// 	// TODO: Highlight Syntax error since this is the easiest fix
+		// 	fallthrough
+		// case strings.HasPrefix(errType, "missing import path"):
+		// 	fallthrough
+		// case strings.HasPrefix(errType, "expected"):
+		// 	// TODO: Color 'INDENT' and found 'EOF' parts
+		// 	fallthrough
+		// case strings.HasPrefix(errType, "invalid operation"):
+		// 	// TODO: Color based on types
+		// 	// TODO: Replace x and y operands with their types
+		// 	// TODO: Case: Cannot sesnd on recieve only channel
+		// 	fallthrough
+		// case strings.HasPrefix(errType, "no required module provides package"):
+		// 	fallthrough
 		default:
-			return fmt.Errorf(`unknown error type: "%s"`, errType)
+			slog.Debug("unknown error", "type", errType)
+			newMsg = NewDefaultErrorHandler()
 		}
 		errMap[errType] = newMsg
 	}
