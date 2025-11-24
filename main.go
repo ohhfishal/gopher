@@ -25,7 +25,7 @@ var ErrDone = errors.New("program ready to exit")
 type Cmd struct {
 	Version   VersionFlag `short:"v" help:"Print out version and exit."`
 	LogConfig LogConfig   `embed:"" group:"Logging Flags:"`
-	Report    report.CMD  `cmd:"" group:"" default:"withargs" help:"Output build report."`
+	Report    report.CMD  `cmd:"" group:"" default:"withargs" help:"Output build report. Pipe in output from go build -json."`
 	Debug     bool        `help:"Turn on debugging features."`
 	// Watch     watch.CMD  `cmd:"" help:"Watch for changes and rebuild"`
 }

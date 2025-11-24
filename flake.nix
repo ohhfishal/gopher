@@ -17,7 +17,7 @@
           pname = "gopher";
           inherit version;
           src = self;
-          vendorHash = "sha256-wtGhB2l5wUp64hsdh8ikIGrnaO5+7A4AX9w4ZvUgN+E=";
+          vendorHash = "sha256-OpAqYDjVo5frP8Z+C7oBv8p+IEttsnjj/3TGccC7SAc=";
           meta = {
             description = "Improved go build output.";
           };
