@@ -12,22 +12,18 @@ import (
 	"syscall"
 
 	"github.com/alecthomas/kong"
-	"github.com/ohhfishal/gopher/report"
+	"github.com/ohhfishal/gopher/gopher"
 	konghelp "github.com/ohhfishal/kong-help"
-	// "github.com/ohhfishal/gopher/watch"
 )
-
-//go:embed version.txt
-var version string
 
 var ErrDone = errors.New("program ready to exit")
 
 type Cmd struct {
-	Version   VersionFlag `short:"v" help:"Print out version and exit."`
-	LogConfig LogConfig   `embed:"" group:"Logging Flags:"`
-	Report    report.CMD  `cmd:"" group:"" default:"withargs" help:"Output build report. Pipe in output from go build -json."`
-	Debug     bool        `help:"Turn on debugging features."`
-	// Watch     watch.CMD  `cmd:"" help:"Watch for changes and rebuild"`
+	LogConfig LogConfig `embed:"" group:"Logging Flags:"`
+	Debug     bool      `help:"Turn on debugging features."`
+	// TODO: INIT?
+	// Bootstrap gopher.BootstrapCMD `cmd:"" help:"Bootstrap"`
+	Gopher gopher.CMD `cmd:"" default:"withargs" help:"Default cmd."`
 }
 
 func main() {
@@ -52,9 +48,6 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 		konghelp.Help(),
 		kong.BindTo(ctx, new(context.Context)),
 		kong.BindTo(stdout, new(io.Writer)),
-		kong.Vars{
-			"version": version,
-		},
 	)
 	if err != nil {
 		return err
@@ -78,18 +71,8 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 
 	logger := cmd.LogConfig.NewLogger(stdout)
 	if err := context.Run(logger); err != nil {
-		// TODO: Handle some of the run options
 		logger.Error("failed to run", "error", err)
 		return nil
 	}
 	return nil
-}
-
-type VersionFlag bool
-
-func (v VersionFlag) BeforeReset(app *kong.Kong, vars kong.Vars) error {
-	if _, err := fmt.Fprint(app.Stdout, vars["version"]); err != nil {
-		return err
-	}
-	return fmt.Errorf("%s: %w", "printed version", ErrDone)
 }

@@ -1,6 +1,0 @@
-{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"# github.com/ohhfishal/gopher/watch\n"}
-{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/watch.go:9:25: undefined: context\n"}
-{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/watch.go:9:49: undefined: io\n"}
-{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/watch.go:9:68: undefined: slog\n"}
-{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/watch.go:9:68: undefined: json\n"}
-{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-fail"}
