@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"iter"
 	"io"
+	"iter"
 	"os"
 	"time"
 )
@@ -14,16 +14,16 @@ type Gopher struct {
 }
 
 type RunArgs struct {
-	GoBin string
+	GoBin  string
 	Stdout io.Writer
 }
 
 type RunEvent iter.Seq[any]
 
-
 type Runner interface {
 	Run(context.Context, RunArgs) error
 }
+
 var _ Runner = &GoBuild{}
 
 func main() {
@@ -33,12 +33,11 @@ func main() {
 	Devel(context.TODO(), gopher)
 }
 
-
 func (gopher *Gopher) Run(ctx context.Context, event RunEvent, runners ...Runner) error {
 	for range event {
 		for _, runner := range runners {
 			if err := runner.Run(ctx, RunArgs{
-				GoBin: gopher.GoBin,
+				GoBin:  gopher.GoBin,
 				Stdout: os.Stdout,
 			}); err != nil {
 				return err
@@ -49,8 +48,8 @@ func (gopher *Gopher) Run(ctx context.Context, event RunEvent, runners ...Runner
 }
 
 type GoBuild struct {
-	Output string
-	Flags []string
+	Output   string
+	Flags    []string
 	Packages []string
 }
 
@@ -76,7 +75,7 @@ func NowAnd(when RunEvent) RunEvent {
 
 func Now() RunEvent {
 	return func(yield func(_ any) bool) {
-		_ = yield(nil) 
+		_ = yield(nil)
 	}
 }
 

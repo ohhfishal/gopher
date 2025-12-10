@@ -1,11 +1,11 @@
 //go:build gopher
+
 package main
 
 import (
 	"context"
 	"time"
 )
-
 
 // func init() {
 // 	// Maybe do automatically?
@@ -15,7 +15,7 @@ import (
 // Builds the app as you make changes.
 func Devel(ctx context.Context, gopher Gopher) error {
 	// Uses a dynamic gopher (configurable via the CLI)
-	return gopher.Run(ctx, NowAnd(Every(5 * time.Second)),
+	return gopher.Run(ctx, NowAnd(Every(5*time.Second)),
 		&GoBuild{
 			Output: "target/dev",
 		},
@@ -28,7 +28,7 @@ func Prod(ctx context.Context) error {
 	gopher := Gopher{
 		GoBin: "go",
 	}
-	return gopher.Run(ctx, NowAnd(Every(5 * time.Second)),
+	return gopher.Run(ctx, NowAnd(Every(5*time.Second)),
 		&GoBuild{
 			Output: "target/prod",
 		},
