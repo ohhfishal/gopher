@@ -19,7 +19,6 @@ func Devel(ctx context.Context, gopher Gopher) error {
 	return gopher.Run(ctx, NowAnd(Every(3*time.Second)),
 		&GoBuild{
 			Output: "target/dev",
-			UseCache: true,
 		},
 	)
 }
@@ -29,7 +28,6 @@ func Prod(ctx context.Context, gopher Gopher) error {
 	return gopher.Run(ctx, Now(),
 		&GoBuild{
 			Output: "target/prod",
-			UseCache: true,
 		},
 	)
 }

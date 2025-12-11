@@ -15,13 +15,13 @@ type GoBuild struct {
 	Output   string
 	Flags    []string
 	Packages []string
-	UseCache bool
+	DisableCache bool
 	cache *cache.Cache
 
 }
 
 func (build *GoBuild) Run(ctx context.Context, args RunArgs) error {
-	if build.UseCache && build.cache == nil {
+	if !build.DisableCache && build.cache == nil {
 		pwd, _ := os.Getwd()
 		cache, err := cache.NewFileCache(pwd)
 		if err != nil {
