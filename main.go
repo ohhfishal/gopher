@@ -12,7 +12,7 @@ import (
 	"syscall"
 
 	"github.com/alecthomas/kong"
-	"github.com/ohhfishal/gopher/gopher"
+	"github.com/ohhfishal/gopher/cmd"
 	konghelp "github.com/ohhfishal/kong-help"
 )
 
@@ -23,7 +23,7 @@ type Cmd struct {
 	Debug     bool      `help:"Turn on debugging features."`
 	// TODO: INIT?
 	// Bootstrap gopher.BootstrapCMD `cmd:"" help:"Bootstrap"`
-	Gopher gopher.CMD `cmd:"" default:"withargs" help:"Default cmd."`
+	Gopher cmd.CMD `cmd:"" default:"withargs" help:"Default cmd."`
 }
 
 func main() {
