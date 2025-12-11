@@ -4,3 +4,4 @@ examples.txt
 .pre*
 result
 target/*
+.gopher/*

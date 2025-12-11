@@ -1,9 +1,12 @@
-// testest go:build gopher
+//go:build gopher
 
-package cmd
+// This file is the default Gopher File loaded if none are found.
+
+package example
 
 import (
 	"context"
+	_ "github.com/ohhfishal/gopher/runner"
 	"time"
 )
 

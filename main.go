@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	_ "embed"
 	"errors"
 	"fmt"
 	"io"
@@ -12,7 +11,7 @@ import (
 	"syscall"
 
 	"github.com/alecthomas/kong"
-	"github.com/ohhfishal/gopher/cmd"
+	"github.com/ohhfishal/gopher/runner"
 	konghelp "github.com/ohhfishal/kong-help"
 )
 
@@ -23,7 +22,7 @@ type Cmd struct {
 	Debug     bool      `help:"Turn on debugging features."`
 	// TODO: INIT?
 	// Bootstrap gopher.BootstrapCMD `cmd:"" help:"Bootstrap"`
-	Gopher cmd.CMD `cmd:"" default:"withargs" help:"Default cmd."`
+	Gopher runner.CMD `cmd:"" default:"withargs" help:"Default cmd."`
 }
 
 func main() {

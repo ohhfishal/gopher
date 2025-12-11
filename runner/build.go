@@ -1,4 +1,4 @@
-package cmd
+package runner
 
 import (
 	"context"
@@ -10,6 +10,8 @@ import (
 
 	"github.com/ohhfishal/gopher/cache"
 )
+
+var _ Runner = &GoBuild{}
 
 type GoBuild struct {
 	Output       string
@@ -59,11 +61,9 @@ func (build *GoBuild) Run(ctx context.Context, args RunArgs) error {
 	}
 
 	if err := cmd.Wait(); err != nil {
-		fmt.Fprintf(args.Stdout, "%s\n", slurp)
-	} else {
-		fmt.Fprintln(args.Stdout, "OK")
+		return fmt.Errorf("%s", slurp)
 	}
-	return nil
+	return ErrOK
 }
 
 func NowAnd(when RunEvent) RunEvent {
