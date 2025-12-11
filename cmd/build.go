@@ -12,12 +12,11 @@ import (
 )
 
 type GoBuild struct {
-	Output   string
-	Flags    []string
-	Packages []string
+	Output       string
+	Flags        []string
+	Packages     []string
 	DisableCache bool
-	cache *cache.Cache
-
+	cache        *cache.Cache
 }
 
 func (build *GoBuild) Run(ctx context.Context, args RunArgs) error {

@@ -1,16 +1,16 @@
 package cache
 
 import (
-	"io/fs"
 	"fmt"
+	"github.com/fsnotify/fsnotify"
+	"io/fs"
 	"path/filepath"
 	"sync/atomic"
-	"github.com/fsnotify/fsnotify"
 )
 
 type Cache struct {
 	watcher *fsnotify.Watcher
-	ok atomic.Bool
+	ok      atomic.Bool
 }
 
 func (cache *Cache) Close() error {
@@ -43,24 +43,24 @@ func NewFileCache(path string) (*Cache, error) {
 	return cache, nil
 }
 
-func (cache *Cache) work()  {
+func (cache *Cache) work() {
 	// TODO: Respect context?
 	cache.ok.Store(true)
 	for {
 		select {
 		case event, ok := <-cache.watcher.Events:
-				if !ok || filepath.Ext(event.Name) != ".go" || (!event.Has(fsnotify.Write) &&
-					!event.Has(fsnotify.Create) &&
-					!event.Has(fsnotify.Rename)) {
-					continue
-				}
-				cache.ok.Store(true)
+			if !ok || filepath.Ext(event.Name) != ".go" || (!event.Has(fsnotify.Write) &&
+				!event.Has(fsnotify.Create) &&
+				!event.Has(fsnotify.Rename)) {
+				continue
+			}
+			cache.ok.Store(true)
 		case err, ok := <-cache.watcher.Errors:
-				if !ok {
-					continue
-				}
-				// TODO: I don't think this triggers so letting it panic
-				panic(err)
+			if !ok {
+				continue
+			}
+			// TODO: I don't think this triggers so letting it panic
+			panic(err)
 		}
 	}
 }
