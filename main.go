@@ -68,6 +68,8 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 
 	if cmd.Debug {
 		cmd.LogConfig.Level = slog.LevelDebug
+		cmd.LogConfig.AddSource = true
+		// TODO: Have this maybe go to a gopher_debug.log??
 	}
 
 	logger := cmd.LogConfig.NewLogger(stdout)
@@ -157,28 +159,3 @@ func GopherFile(filepath string) (io.ReadCloser, error) {
 	}
 	return file, nil
 }
-
-// TODO: Move?
-// func (config *Config) Run(ctx context.Context, event RunEvent, runners ...Runner) error {
-// 	for range event {
-// 		for _, runner := range runners {
-// 			if ctx.Err() != nil {
-// 				return nil
-// 			}
-//
-// 			err := runner.Run(ctx, RunArgs{
-// 				GoBin:  config.GoBin,
-// 				Stdout: os.Stdout,
-// 			})
-//
-// 			if errors.Is(ErrOK, err) {
-// 				// TODO: ????
-// 				// Eventually print Go Build: OK
-// 				fmt.Println("OK")
-// 			} else if err != nil {
-// 				fmt.Println(err)
-// 			}
-// 		}
-// 	}
-// 	return nil
-// }
