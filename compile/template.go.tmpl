@@ -1,0 +1,21 @@
+package main
+
+import (
+  "fmt"
+)
+
+func main() {
+	// TODO: Something like this
+	// if config.List {
+	// 	for name, target := range targets {
+	// 		fmt.Printf("%s: %s\n", name, target.Description)
+	// 	}
+	// 	return nil
+	// }
+	// target, ok := targets[config.Target]
+	// if !ok {
+	// 	return fmt.Errorf("unknown target: %s", config.Target)
+	// }
+	// return target.Func(ctx, config.Go)
+  fmt.Printf("Hello %d worlds\n", {{ len .Targets }})
+}

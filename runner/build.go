@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"os/exec"
 	"time"
@@ -40,11 +41,13 @@ func (build *GoBuild) Run(ctx context.Context, args RunArgs) error {
 		output = "testBin"
 	}
 	cmdArgs := []string{
-		"build", "-o", output,
+		"build",
 	}
 	cmdArgs = append(cmdArgs, build.Flags...)
+	cmdArgs = append(cmdArgs, "-o", output)
 	cmdArgs = append(cmdArgs, build.Packages...)
 
+	slog.Debug("running command", "cmd", args.GoBin, "args", cmdArgs)
 	cmd := exec.CommandContext(ctx, args.GoBin, cmdArgs...)
 	stderr, err := cmd.StderrPipe()
 	if err != nil {

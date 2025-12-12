@@ -1,22 +1,34 @@
 package compile
 
 import (
+	"context"
+	_ "embed"
 	"errors"
 	"fmt"
+	"github.com/ohhfishal/gopher/runner"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
+	"text/template"
 )
+
+//go:embed template.go.tmpl
+var rawMainTemplate string
+var mainTemplate = template.Must(template.New("main.go").Parse(rawMainTemplate))
+
+const BinaryName = "target"
 
 type Target struct {
 	Name        string
 	Description string
 }
 
-func Compile(content []byte, dir string) error {
+func Compile(content []byte, dir string, goBin string) error {
 	if err := os.Mkdir(dir, 0750); err != nil && !os.IsExist(err) {
 		return fmt.Errorf("making working directory: %w", err)
 	}
@@ -31,16 +43,26 @@ func Compile(content []byte, dir string) error {
 	if err != nil {
 		return fmt.Errorf("parsing targets: %w", err)
 	} else if len(targets) == 0 {
-		return fmt.Errorf("must include at least one target: %w", err)
+		return fmt.Errorf("must include at least one target: %v", targets)
 	}
+	slog.Debug("parsed targets", "count", len(targets), "targets", targets)
 
-	var writer io.Writer
-	if err = writeMain(writer, targets); err != nil {
-		err = fmt.Errorf("writing main: %w", err)
+	mainFile, err := os.OpenFile(filepath.Join(dir, "main.go"), os.O_WRONLY|os.O_CREATE, 0644)
+	if err != nil {
+		err = fmt.Errorf("opening main.go: %w", err)
+		goto cleanup
+	}
+	err = writeMain(mainFile, targets)
+	if err != nil {
+		err = fmt.Errorf("writing main.go: %w", err)
 		goto cleanup
 	}
 
-	// TODO: Actually build the binary
+	err = buildBinary(dir, goBin)
+	if err != nil {
+		err = fmt.Errorf("building binary: %w", err)
+		goto cleanup
+	}
 	return nil
 
 cleanup:
@@ -49,8 +71,33 @@ cleanup:
 	return err
 }
 
+func buildBinary(dir string, goBin string) error {
+	builder := runner.GoBuild{
+		Output:       BinaryName,
+		Flags:        []string{"-C", dir},
+		Packages:     []string{"main.go"},
+		DisableCache: true,
+	}
+	var output strings.Builder
+	err := builder.Run(context.TODO(), runner.RunArgs{
+		GoBin:  goBin,
+		Stdout: &output,
+	})
+	slog.Debug("built", "path", filepath.Join(dir, BinaryName), "output", output.String())
+	if errors.Is(runner.ErrOK, err) {
+		return nil
+	}
+	return err
+}
+
+type TemplateData struct {
+	Targets []Target
+}
+
 func writeMain(writer io.Writer, targets []Target) error {
-	return errors.New("not implemented: main")
+	return mainTemplate.Execute(writer, TemplateData{
+		Targets: targets,
+	})
 }
 
 func parseTargets(content []byte) ([]Target, error) {
