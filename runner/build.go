@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
-	"time"
 
 	"github.com/ohhfishal/gopher/cache"
 )
@@ -47,8 +46,8 @@ func (build *GoBuild) Run(ctx context.Context, args RunArgs) error {
 	cmdArgs = append(cmdArgs, "-o", output)
 	cmdArgs = append(cmdArgs, build.Packages...)
 
-	slog.Debug("running command", "cmd", args.GoBin, "args", cmdArgs)
-	cmd := exec.CommandContext(ctx, args.GoBin, cmdArgs...)
+	slog.Debug("running command", "cmd", args.GoConfig.GoBin, "args", cmdArgs)
+	cmd := exec.CommandContext(ctx, args.GoConfig.GoBin, cmdArgs...)
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		return fmt.Errorf("getting stderr: %w", err)
@@ -67,37 +66,4 @@ func (build *GoBuild) Run(ctx context.Context, args RunArgs) error {
 		return fmt.Errorf("%s", slurp)
 	}
 	return ErrOK
-}
-
-func NowAnd(when RunEvent) RunEvent {
-	return func(yield func(any) bool) {
-		for range Now() {
-			if !yield(nil) {
-				break
-			}
-		}
-		for range when {
-			if !yield(nil) {
-				return
-			}
-		}
-	}
-}
-
-func Now() RunEvent {
-	return func(yield func(_ any) bool) {
-		_ = yield(nil)
-	}
-}
-
-func Every(duration time.Duration) RunEvent {
-	ticker := time.NewTicker(duration)
-	return func(yield func(_ any) bool) {
-		defer ticker.Stop()
-		for range ticker.C {
-			if !yield(nil) {
-				return
-			}
-		}
-	}
 }

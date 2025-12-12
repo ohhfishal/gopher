@@ -4,21 +4,21 @@ import (
 	"context"
 	_ "embed"
 	"errors"
+	"fmt"
 	"io"
 	"iter"
-	"log/slog"
+	"os"
+	"time"
 )
 
 var ErrOK = errors.New("OK")
 
-type Config struct {
-	// TODO: I don't think this goes here? Gopher is the compiler?
-	GoBin  string       `default:"go" help:"Go binary to use for commands."`
-	Logger *slog.Logger `kong:"-"`
+type GoConfig struct {
+	GoBin string `default:"go" help:"Go binary to use for commands."`
 }
 
-// TargetFunc is the function the user implements
-type TargetFunc func(context.Context, Config) error
+type RunEvent iter.Seq[any]
+type RunFunc func(context.Context, RunArgs) error
 
 // Runner is the interface wrapping tools the user may want to run
 // Ex: go build or go fmt
@@ -26,20 +26,73 @@ type Runner interface {
 	Run(context.Context, RunArgs) error
 }
 
+func RunnerFunc(f RunFunc) Runner {
+	panic("not implemented: runnerfunc")
+	return nil
+}
+
 type RunArgs struct {
-	GoBin  string
-	Stdout io.Writer
+	GoConfig GoConfig
+	Stdout   io.Writer
 }
 
-type RunEvent iter.Seq[any]
+func Run(ctx context.Context, event RunEvent, runners ...Runner) error {
+	for range event {
+		for _, runner := range runners {
+			if ctx.Err() != nil {
+				return nil
+			}
 
-func Register(name string, f TargetFunc, description string) {
-	targets[name] = targetEntry{f, description}
+			err := runner.Run(ctx, RunArgs{
+				// GoBin: gopher.GoBin,
+				// TODO: FIX HACK
+				GoConfig: GoConfig{
+					GoBin: "go",
+				},
+				Stdout: os.Stdout,
+			})
+
+			if errors.Is(ErrOK, err) {
+				// TODO: ????
+				// Eventually print Go Build: OK
+				fmt.Println("OK")
+			} else if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}
+	return nil
 }
 
-var targets = map[string]targetEntry{}
+func NowAnd(when RunEvent) RunEvent {
+	return func(yield func(any) bool) {
+		for range Now() {
+			if !yield(nil) {
+				break
+			}
+		}
+		for range when {
+			if !yield(nil) {
+				return
+			}
+		}
+	}
+}
 
-type targetEntry struct {
-	Func        TargetFunc
-	Description string
+func Now() RunEvent {
+	return func(yield func(_ any) bool) {
+		_ = yield(nil)
+	}
+}
+
+func Every(duration time.Duration) RunEvent {
+	ticker := time.NewTicker(duration)
+	return func(yield func(_ any) bool) {
+		defer ticker.Stop()
+		for range ticker.C {
+			if !yield(nil) {
+				return
+			}
+		}
+	}
 }

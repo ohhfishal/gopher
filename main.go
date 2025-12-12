@@ -79,31 +79,42 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 }
 
 type CMD struct {
-	LogConfig  LogConfig     `embed:"" group:"Logging Flags:"`
-	Debug      bool          `help:"Turn on debugging features."`
-	Target     string        `arg:"" default:"default" help:"Recipe to run."`
-	List       bool          `short:"l" help:"List all targets then exit."`
-	GoConfig   runner.Config `embed:"" group:"Golang Flags"`
-	GopherDir  string        `default:".gopher" help:"Directory to cache files gopher creates."`
-	GopherFile string        `short:"C" default:"gopher.go" help:"File to read from. If gopher.go is not found, defaults to using examples/default.go. (See source code)"`
+	LogConfig  LogConfig       `embed:"" group:"Logging Flags:"`
+	Debug      bool            `help:"Turn on debugging features."`
+	Target     string          `arg:"" default:"default" help:"Recipe to run."`
+	List       bool            `short:"l" help:"List all targets then exit."`
+	GoConfig   runner.GoConfig `embed:"" group:"Golang Flags"`
+	GopherDir  string          `default:".gopher" help:"Directory to cache files gopher creates."`
+	GopherFile string          `short:"C" default:"gopher.go" help:"File to read from. If gopher.go is not found, defaults to using examples/default.go. (See source code)"`
 }
 
 func (config *CMD) Run(ctx context.Context, stdout io.Writer, logger *slog.Logger) error {
 	if err := Load(config.GopherFile, config.GopherDir, config.GoConfig.GoBin); err != nil {
 		return err
 	}
+
+	// Following convention of passing in invokation cmd
+	args := []string{"./" + compile.BinaryName}
+	if config.List {
+		args = append(args, "-l")
+	}
+	args = append(args, config.Target)
+
 	cmd := &exec.Cmd{
 		Path:   filepath.Join(config.GopherDir, compile.BinaryName),
 		Stdout: stdout,
+		Stderr: stdout,
+		Args:   args,
 	}
+	logger.Info("calling", "args", cmd.Args)
 
 	if err := cmd.Start(); err != nil {
 		return err
 	}
 	if err := cmd.Wait(); err != nil {
+		fmt.Println(err)
 		return err
 	}
-	// fmt.Fprint(stdout, string(output))
 	return nil
 }
 
