@@ -106,7 +106,7 @@ func (config *CMD) Run(ctx context.Context, stdout io.Writer, logger *slog.Logge
 		Stderr: stdout,
 		Args:   args,
 	}
-	logger.Info("calling", "args", cmd.Args)
+	logger.Debug("calling", "path", cmd.Path, "args", cmd.Args)
 
 	if err := cmd.Start(); err != nil {
 		return err
