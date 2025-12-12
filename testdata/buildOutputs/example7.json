@@ -1,3 +1,0 @@
-{"ImportPath":"command-line-arguments","Action":"build-output","Output":"# command-line-arguments\n"}
-{"ImportPath":"command-line-arguments","Action":"build-output","Output":"/tmp/tmp.06BH1km0sL/example7.go:6:5: syntax error: non-declaration statement outside function body\n"}
-{"ImportPath":"command-line-arguments","Action":"build-fail"}

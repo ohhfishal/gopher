@@ -1,3 +1,0 @@
-{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"# github.com/ohhfishal/gopher/watch\n"}
-{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-output","Output":"watch/watch.go:34:37: undefined: fsnotify.Renamed\n"}
-{"ImportPath":"github.com/ohhfishal/gopher/watch","Action":"build-fail"}

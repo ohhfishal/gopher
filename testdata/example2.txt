@@ -1,3 +1,0 @@
-{"ImportPath":"github.com/ohhfishal/gopher","Action":"build-output","Output":"# github.com/ohhfishal/gopher\n"}
-{"ImportPath":"github.com/ohhfishal/gopher","Action":"build-output","Output":"./logger.go:18:5: undefined: Disabled\n"}
-{"ImportPath":"github.com/ohhfishal/gopher","Action":"build-fail"}

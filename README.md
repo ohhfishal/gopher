@@ -1,24 +1,5 @@
 # gopher
 
-Better `go build` output.
+The Golang-Configured Makefile-like tool that sits on your directory. Run `go build` or other tools while you work.
 
-## Usuage
-
-```bash
-go build -json | gopher
-```
-
-
-### Output
-
-```
-package: github.com/ohhfishal/gopher/watch
-report.go
-  undefined:
-    errors (2:22)
-    fmt (5:9), (5:10), ...
-    io (2:58), (4:48), ...
-  Did you forget to import ("errors", "fmt", "io")?
-	 ...
-FAILED
-```
+(My primary use case is to keep running go builds as I fix compliler errors.
