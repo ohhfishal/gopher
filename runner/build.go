@@ -5,36 +5,20 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"os"
 	"os/exec"
 
-	"github.com/ohhfishal/gopher/cache"
 	"github.com/ohhfishal/gopher/pretty"
 )
 
 var _ Runner = &GoBuild{}
 
 type GoBuild struct {
-	Output       string
-	Flags        []string
-	Packages     []string
-	DisableCache bool
-	cache        *cache.Cache
+	Output   string
+	Flags    []string
+	Packages []string
 }
 
 func (build *GoBuild) Run(ctx context.Context, args RunArgs) (retErr error) {
-	if !build.DisableCache && build.cache == nil {
-		pwd, _ := os.Getwd()
-		cache, err := cache.NewFileCache(pwd)
-		if err != nil {
-			return fmt.Errorf("creating file cache:", err)
-		}
-		build.cache = cache
-		return nil
-	}
-	if build.cache != nil && !build.cache.Ready() {
-		return nil
-	}
 	printer := pretty.New(args.Stdout, "Go Build")
 	printer.Start()
 	defer func() { printer.Done(retErr) }()

@@ -24,6 +24,9 @@ func Devel(ctx context.Context, args RunArgs) error {
 	// 	return nil
 	// }
 	return Run(ctx, NowAnd(Every(3*time.Second)),
+		&FileCache{
+			Path: ".",
+		},
 		&GoBuild{
 			Output: "target/dev",
 		},

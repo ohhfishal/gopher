@@ -82,10 +82,9 @@ cleanup:
 
 func buildBinary(dir string, goBin string) error {
 	builder := runner.GoBuild{
-		Output:       BinaryName,
-		Flags:        []string{"-C", dir},
-		Packages:     []string{"main.go", TargetsFile},
-		DisableCache: true,
+		Output:   BinaryName,
+		Flags:    []string{"-C", dir},
+		Packages: []string{"main.go", TargetsFile},
 	}
 	var output strings.Builder
 	err := builder.Run(context.TODO(), runner.RunArgs{

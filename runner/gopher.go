@@ -2,8 +2,8 @@ package runner
 
 import (
 	"context"
-	// "errors"
-	// "fmt"
+	"errors"
+	"fmt"
 	"os"
 )
 
@@ -25,17 +25,12 @@ func (gopher *Gopher) Run(ctx context.Context, event RunEvent, runners ...Runner
 				},
 				Stdout: os.Stdout,
 			})
-			if err != nil {
+			if errors.Is(ErrSkip, err) {
 				break
-			}
 
-			// if errors.Is(ErrOK, err) {
-			// 	// TODO: ????
-			// 	// Eventually print Go Build: OK
-			// 	fmt.Println("OK")
-			// } else if err != nil {
-			// 	fmt.Println(err)
-			// }
+			} else if err != nil {
+				fmt.Fprintln(os.Stdout, err)
+			}
 		}
 	}
 	return nil

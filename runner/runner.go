@@ -10,6 +10,7 @@ import (
 )
 
 var ErrOK = errors.New("OK")
+var ErrSkip = errors.New("stop and skip iteration")
 
 type GoConfig struct {
 	GoBin string `default:"go" help:"Go binary to use for commands."`
