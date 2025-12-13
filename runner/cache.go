@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"log/slog"
+	"os"
 	"path/filepath"
 	"sync"
 	"sync/atomic"
@@ -35,6 +36,13 @@ func (cache *FileCache) initHelper() error {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return err
+	}
+	if cache.Path == "" {
+		path, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		cache.Path = path
 	}
 
 	if err := watcher.Add(cache.Path); err != nil {

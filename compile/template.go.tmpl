@@ -29,9 +29,6 @@ var targets = map[string]Target{
 }
 
 func main() {
-  // TODO: 
-  // If askign for list, print them...
-  // Otherwise sswitch on the cmd
 	ctx, stop := signal.NotifyContext(
 		context.Background(),
 		os.Interrupt,

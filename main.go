@@ -144,7 +144,7 @@ func Load(file string, directory string, goBin string) error {
 }
 
 func Cached(content []byte) error {
-	slog.Warn("caching not implemented")
+	slog.Warn("gopherfile binary caching not implemented")
 	return ErrNeedsCompile
 }
 
