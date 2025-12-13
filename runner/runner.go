@@ -4,10 +4,8 @@ import (
 	"context"
 	_ "embed"
 	"errors"
-	"fmt"
 	"io"
 	"iter"
-	"os"
 	"time"
 )
 
@@ -37,31 +35,8 @@ type RunArgs struct {
 }
 
 func Run(ctx context.Context, event RunEvent, runners ...Runner) error {
-	for range event {
-		for _, runner := range runners {
-			if ctx.Err() != nil {
-				return nil
-			}
-
-			err := runner.Run(ctx, RunArgs{
-				// GoBin: gopher.GoBin,
-				// TODO: FIX HACK
-				GoConfig: GoConfig{
-					GoBin: "go",
-				},
-				Stdout: os.Stdout,
-			})
-
-			if errors.Is(ErrOK, err) {
-				// TODO: ????
-				// Eventually print Go Build: OK
-				fmt.Println("OK")
-			} else if err != nil {
-				fmt.Println(err)
-			}
-		}
-	}
-	return nil
+	var gopher Gopher
+	return gopher.Run(ctx, event, runners...)
 }
 
 func NowAnd(when RunEvent) RunEvent {

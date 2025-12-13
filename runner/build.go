@@ -9,6 +9,7 @@ import (
 	"os/exec"
 
 	"github.com/ohhfishal/gopher/cache"
+	"github.com/ohhfishal/gopher/pretty"
 )
 
 var _ Runner = &GoBuild{}
@@ -21,7 +22,7 @@ type GoBuild struct {
 	cache        *cache.Cache
 }
 
-func (build *GoBuild) Run(ctx context.Context, args RunArgs) error {
+func (build *GoBuild) Run(ctx context.Context, args RunArgs) (retErr error) {
 	if !build.DisableCache && build.cache == nil {
 		pwd, _ := os.Getwd()
 		cache, err := cache.NewFileCache(pwd)
@@ -34,6 +35,9 @@ func (build *GoBuild) Run(ctx context.Context, args RunArgs) error {
 	if build.cache != nil && !build.cache.Ready() {
 		return nil
 	}
+	printer := pretty.New(args.Stdout, "Go Build")
+	printer.Start()
+	defer func() { printer.Done(retErr) }()
 
 	var output = build.Output
 	if output == "" {
@@ -65,5 +69,5 @@ func (build *GoBuild) Run(ctx context.Context, args RunArgs) error {
 	if err := cmd.Wait(); err != nil {
 		return fmt.Errorf("%s", slurp)
 	}
-	return ErrOK
+	return nil
 }
