@@ -30,6 +30,7 @@ func (gopher *Gopher) Run(ctx context.Context, event RunEvent, runners ...Runner
 
 			} else if err != nil {
 				fmt.Fprintln(os.Stdout, err)
+				break
 			}
 		}
 	}
