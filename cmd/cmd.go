@@ -61,6 +61,7 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 type CMD struct {
 	LogConfig LogConfig    `embed:"" group:"Logging Flags:"`
 	Debug     bool         `help:"Turn on debugging features."`
+	Version   VersionCMD   `cmd:"" help:"Print gopher veresion then exit."`
 	Run       RunCMD       `cmd:"" default:"withargs" help:"Run a given target from a gopher.go file."`
 	Bootstrap BootstrapCMD `cmd:"" help:"Bootstrap a projec to use gopher."`
 }
