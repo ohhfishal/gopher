@@ -76,7 +76,7 @@ func (test *GoTest) Run(ctx context.Context, args RunArgs) (retErr error) {
 	slog.Debug("running command", "cmd", args.GoConfig.GoBin, "args", cmdArgs)
 	cmd := exec.CommandContext(ctx, args.GoConfig.GoBin, cmdArgs...)
 
-	output, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
 	fmt.Fprint(args.Stdout, string(output))
 	return err
 }
