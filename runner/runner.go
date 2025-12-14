@@ -47,26 +47,33 @@ type Gopher struct {
 
 func (gopher *Gopher) Run(ctx context.Context, event RunEvent, runners ...Runner) error {
 	for range event {
-		for _, runner := range runners {
-			if ctx.Err() != nil {
-				return nil
-			}
+		if ctx.Err() != nil {
+			return nil
+		}
+		runCtx, cancel := context.WithCancel(ctx)
+		gopher.run(runCtx, runners...)
+		// TODO: This may need to be canceled *at the start* of the next iteration
+		cancel()
+	}
+	return nil
+}
 
-			err := runner.Run(ctx, RunArgs{
-				// GoBin: gopher.GoBin,
-				// TODO: FIX HACK
-				GoConfig: GoConfig{
-					GoBin: "go",
-				},
-				Stdout: os.Stdout,
-			})
-			if errors.Is(ErrSkip, err) {
-				break
+func (gopher *Gopher) run(ctx context.Context, runners ...Runner) error {
+	for _, runner := range runners {
+		err := runner.Run(ctx, RunArgs{
+			// GoBin: gopher.GoBin,
+			// TODO: FIX HACK
+			GoConfig: GoConfig{
+				GoBin: "go",
+			},
+			Stdout: os.Stdout,
+		})
+		if errors.Is(ErrSkip, err) {
+			return nil
 
-			} else if err != nil {
-				fmt.Fprintln(os.Stdout, err)
-				break
-			}
+		} else if err != nil {
+			fmt.Fprintln(os.Stdout, err)
+			return nil
 		}
 	}
 	return nil

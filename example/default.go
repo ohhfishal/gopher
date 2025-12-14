@@ -1,6 +1,6 @@
 //go:build gopher
 
-/* 
+/*
 	This file is the default Gopher File loaded if none are specified.
 	We use a go:build gopher tag to ignore this file when doing normal go builds.
 */
