@@ -32,8 +32,10 @@ func Devel(ctx context.Context, args RunArgs) error {
 			Output: "target/dev",
 		},
 		&GoFormat{},
-		// TODO: Implement cmd runner so gopher can bootstrap itself during development
-		// NOTE: Also requires a "closer" interface to kill the process before rerunning
+		// TODO: Find a way to hot-swap the binary so we can bootstrap outself
+		// NOTE: Also maybe a "closer" interface to kill the process before rerunning
+		// ExecCommand("target/dev", "devel"),
+		ExecCommand("echo", "OK"),
 	)
 }
 
