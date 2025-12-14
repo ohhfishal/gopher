@@ -11,6 +11,7 @@ import (
 )
 
 var _ Runner = &GoBuild{}
+var _ Runner = &GoTest{}
 
 type GoBuild struct {
 	Output   string
@@ -54,4 +55,28 @@ func (build *GoBuild) Run(ctx context.Context, args RunArgs) (retErr error) {
 		return fmt.Errorf("%s", slurp)
 	}
 	return nil
+}
+
+type GoTest struct {
+	Path string
+}
+
+func (test *GoTest) Run(ctx context.Context, args RunArgs) (retErr error) {
+	fmt.Fprintln(args.Stdout, "Running Go Test:")
+
+	path := test.Path
+	if path == "" {
+		path = "./..."
+	}
+	cmdArgs := []string{
+		"test",
+		path,
+	}
+
+	slog.Debug("running command", "cmd", args.GoConfig.GoBin, "args", cmdArgs)
+	cmd := exec.CommandContext(ctx, args.GoConfig.GoBin, cmdArgs...)
+
+	output, err := cmd.Output()
+	fmt.Fprint(args.Stdout, string(output))
+	return err
 }
