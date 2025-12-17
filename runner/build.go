@@ -62,21 +62,20 @@ type GoTest struct {
 }
 
 func (test *GoTest) Run(ctx context.Context, args RunArgs) (retErr error) {
-	fmt.Fprintln(args.Stdout, "Running Go Test:")
+	printer := pretty.New(args.Stdout, "Go Test")
+	printer.Start()
 
 	path := test.Path
 	if path == "" {
 		path = "./..."
 	}
-	cmdArgs := []string{
-		"test",
-		path,
-	}
+	cmdArgs := []string{"test", path}
 
 	slog.Debug("running command", "cmd", args.GoConfig.GoBin, "args", cmdArgs)
 	cmd := exec.CommandContext(ctx, args.GoConfig.GoBin, cmdArgs...)
 
 	output, err := cmd.CombinedOutput()
+	printer.Done(err)
 	fmt.Fprint(args.Stdout, string(output))
 	return err
 }
