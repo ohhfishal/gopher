@@ -35,6 +35,8 @@ github.com/ohhfishal/kong-help v0.2.0 h1:97JJIMCokWTOFKRw4NEXWlj32qKHZ4LPJl3naXq
 github.com/ohhfishal/kong-help v0.2.0/go.mod h1:Lp066tCWNYMYUZtc2MRtIOyXiJvsbH2u/N/zfeQ8arM=
 github.com/ohhfishal/kong-help v0.3.1 h1:AaeuyRb1EdAwhmpi2j5INmO4mdo5GV77zUWzxuzvDvk=
 github.com/ohhfishal/kong-help v0.3.1/go.mod h1:Lp066tCWNYMYUZtc2MRtIOyXiJvsbH2u/N/zfeQ8arM=
+github.com/ohhfishal/kong-help v0.3.2 h1:KN9d5tzlbFAlF0+7yezHVBfg4StKtB5+FCJi+V4CIwA=
+github.com/ohhfishal/kong-help v0.3.2/go.mod h1:Lp066tCWNYMYUZtc2MRtIOyXiJvsbH2u/N/zfeQ8arM=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
