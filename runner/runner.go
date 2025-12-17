@@ -58,7 +58,7 @@ func (gopher *Gopher) Run(ctx context.Context, event RunEvent, runners ...Runner
 	return nil
 }
 
-func (gopher *Gopher) run(ctx context.Context, runners ...Runner) error {
+func (gopher *Gopher) run(ctx context.Context, runners ...Runner) {
 	for _, runner := range runners {
 		err := runner.Run(ctx, RunArgs{
 			// GoBin: gopher.GoBin,
@@ -69,14 +69,12 @@ func (gopher *Gopher) run(ctx context.Context, runners ...Runner) error {
 			Stdout: os.Stdout,
 		})
 		if errors.Is(ErrSkip, err) {
-			return nil
-
+			return
 		} else if err != nil {
 			fmt.Fprintln(os.Stdout, err)
-			return nil
+			return
 		}
 	}
-	return nil
 }
 
 func NowAnd(when RunEvent) RunEvent {
