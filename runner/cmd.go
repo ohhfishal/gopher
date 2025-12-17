@@ -6,19 +6,24 @@ import (
 	"os/exec"
 )
 
+/*
+TODO: Provide more options akin to exec.Shell
+*/
 type ExecCmdRunner struct {
-	Cmd *exec.Cmd
+	Name string
+	Args []string
 }
 
-func ExecCommand(name string, arg ...string) Runner {
+func ExecCommand(name string, args ...string) Runner {
 	return &ExecCmdRunner{
-		Cmd: exec.Command(name, arg...),
+		Name: name,
+		Args: args,
 	}
 }
 
-func (cmd *ExecCmdRunner) Run(ctx context.Context, args RunArgs) (retErr error) {
-	// TODO: Use command context and copy over values
-	output, err := cmd.Cmd.Output()
+func (runner *ExecCmdRunner) Run(ctx context.Context, args RunArgs) error {
+	cmd := exec.CommandContext(ctx, runner.Name, runner.Args...)
+	output, err := cmd.CombinedOutput()
 	fmt.Fprint(args.Stdout, string(output))
 	if err != nil {
 		return err
