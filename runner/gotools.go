@@ -55,10 +55,10 @@ func (test *GoTest) Run(ctx context.Context, args RunArgs) error {
 	printer.Start()
 
 	path := test.Path
-	cmdArgs := []string{"test", test.Path}
 	if path == "" {
 		path = "./..."
 	}
+	cmdArgs := []string{"test", path}
 
 	return runGoTool(ctx, printer, args, cmdArgs)
 }
