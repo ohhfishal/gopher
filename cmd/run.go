@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -11,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ohhfishal/gopher/cache"
 	"github.com/ohhfishal/gopher/compile"
 	"github.com/ohhfishal/gopher/example"
 	"github.com/ohhfishal/gopher/runner"
@@ -25,7 +25,7 @@ type RunCMD struct {
 }
 
 func (config *RunCMD) Run(ctx context.Context, stdout io.Writer, logger *slog.Logger) error {
-	if err := Load(config.GopherFile, config.GopherDir, config.GoConfig.GoBin); err != nil {
+	if err := BuildGopherIfNeeded(config.GopherFile, config.GopherDir, config.GoConfig.GoBin); err != nil {
 		return err
 	}
 
@@ -54,7 +54,7 @@ func (config *RunCMD) Run(ctx context.Context, stdout io.Writer, logger *slog.Lo
 	return nil
 }
 
-func Load(file string, directory string, goBin string) error {
+func BuildGopherIfNeeded(file string, directory string, goBin string) error {
 	reader, err := GopherFile(file)
 	if err != nil {
 		return err
@@ -66,27 +66,27 @@ func Load(file string, directory string, goBin string) error {
 		return err
 	}
 
-	if err := Cached(content); !errors.Is(ErrNeedsCompile, err) {
-		return err
-	} else if err != nil {
-		slog.Debug("needs to compile, compiling")
-		if err := compile.Compile(content, directory, goBin); err != nil {
-			return fmt.Errorf("compiling: %w", err)
-		}
+	ok, err := cache.Valid(file, directory, goBin)
+	if err != nil {
+		return fmt.Errorf("determining if cached: %w", err)
+	}
+
+	if ok {
+		return nil
+	}
+	slog.Debug("needs to compile, compiling")
+	if err := compile.Compile(content, directory, goBin); err != nil {
+		return fmt.Errorf("compiling: %w", err)
 	}
 	return nil
-}
-
-func Cached(content []byte) error {
-	slog.Warn("gopherfile binary caching not implemented")
-	return ErrNeedsCompile
 }
 
 func GopherFile(filepath string) (io.ReadCloser, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
+		// TODO: Probably should print a better error like: No gopher file found run "gopher bootstrap" to get started
 		if filepath == DefaultFilePath {
-			slog.Debug("could not open gopher.go, using default", "err", err)
+			slog.Info("could not find gopher.go, using default", "err", err)
 			return io.NopCloser(strings.NewReader(example.DefaultGopherFile)), nil
 		}
 		return nil, fmt.Errorf("failed to open file: %s: %w", filepath, err)

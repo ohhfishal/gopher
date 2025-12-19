@@ -42,7 +42,7 @@ func (build *GoBuild) Run(ctx context.Context, args RunArgs) error {
 	printer.Start()
 
 	cmdArgs := append([]string{"build"}, build.Flags...)
-	if build.Output == "" {
+	if build.Output != "" {
 		cmdArgs = append(cmdArgs, "-o", build.Output)
 	}
 	cmdArgs = append(cmdArgs, build.Packages...)
