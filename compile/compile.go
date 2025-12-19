@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"github.com/ohhfishal/gopher/cache"
 	"github.com/ohhfishal/gopher/runner"
 	"go/ast"
 	"go/parser"
@@ -35,7 +36,12 @@ type Target struct {
 	Description string
 }
 
-func Compile(content []byte, dir string, goBin string) error {
+func Compile(reader io.Reader, dir string, goBin string) error {
+	content, err := io.ReadAll(reader)
+	if err != nil {
+		return err
+	}
+
 	if err := os.Mkdir(dir, 0750); err != nil && !os.IsExist(err) {
 		return fmt.Errorf("making working directory: %w", err)
 	}
@@ -43,10 +49,9 @@ func Compile(content []byte, dir string, goBin string) error {
 	if err := os.WriteFile(filepath.Join(dir, TargetsFile), content, 0660); err != nil {
 		return fmt.Errorf("copying over file: %w", err)
 	}
-	var err error
-	var targets []Target
 
-	targets, err = parseTargets(content)
+	// Extract info on targets for generating main.go
+	targets, err := parseTargets(content)
 	if err != nil {
 		return fmt.Errorf("parsing targets: %w", err)
 	} else if len(targets) == 0 {
@@ -54,32 +59,29 @@ func Compile(content []byte, dir string, goBin string) error {
 	}
 	slog.Debug("parsed targets", "count", len(targets), "targets", targets)
 
+	// Write main.go
 	mainFile, err := os.OpenFile(filepath.Join(dir, "main.go"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
-		err = fmt.Errorf("opening main.go: %w", err)
-		goto cleanup
+		return fmt.Errorf("opening main.go: %w", err)
 	}
 	defer mainFile.Close()
 
 	err = writeMain(mainFile, targets)
 	if err != nil {
-		err = fmt.Errorf("writing main.go: %w", err)
-		goto cleanup
+		return fmt.Errorf("writing main.go: %w", err)
 	}
 
+	// Build gopher targets binary
 	err = buildBinary(dir, goBin)
 	if err != nil {
-		err = fmt.Errorf("building binary: %w", err)
-		goto cleanup
+		return fmt.Errorf("building binary: %w", err)
 	}
-	// TODO: Write metadata to the cache file
-	return nil
 
-cleanup:
-	// Remove .gopher/*.go and delete the binary? Maybe just leave it?
-	// TODO: Consider removing this. We are using a cache file which gives us a way to validate an error stopped us last time
-	return fmt.Errorf("not implemented: cleanup: %w", err)
-	return err
+	// Write cache file
+	if err := cache.WriteCacheMetadata(content, dir, goBin); err != nil {
+		return fmt.Errorf("caching build metadata: %w", err)
+	}
+	return nil
 }
 
 func buildBinary(dir string, goBin string) error {

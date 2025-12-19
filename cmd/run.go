@@ -61,11 +61,6 @@ func BuildGopherIfNeeded(file string, directory string, goBin string) error {
 	}
 	defer reader.Close()
 
-	content, err := io.ReadAll(reader)
-	if err != nil {
-		return err
-	}
-
 	ok, err := cache.Valid(file, directory, goBin)
 	if err != nil {
 		return fmt.Errorf("determining if cached: %w", err)
@@ -76,7 +71,7 @@ func BuildGopherIfNeeded(file string, directory string, goBin string) error {
 		return nil
 	}
 	slog.Debug("needs to compile, compiling")
-	if err := compile.Compile(content, directory, goBin); err != nil {
+	if err := compile.Compile(reader, directory, goBin); err != nil {
 		return fmt.Errorf("compiling: %w", err)
 	}
 	return nil

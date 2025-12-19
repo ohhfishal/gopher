@@ -6,10 +6,10 @@ import (
 )
 
 func TestHashDeterministic(t *testing.T) {
-	var content = "Testing123"
+	var content = []byte("Testing123")
 
-	hash1 := cache.Hash(content)
-	hash2 := cache.Hash(content)
+	hash1 := string(cache.Hash(content))
+	hash2 := string(cache.Hash(content))
 	if hash1 != hash2 {
 		t.Errorf("%s != %s", hash1, hash2)
 	}
