@@ -3,7 +3,6 @@ package cache
 import (
 	"crypto/sha256"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -21,11 +20,9 @@ type HashMetadata struct {
 func Valid(gopherfile string, directory string, goBin string) (bool, error) {
 	var expectedHashMetadata HashMetadata
 	expectedReader, err := os.Open(filepath.Join(directory, CacheFile))
-	if errors.Is(os.ErrNotExist, err) {
-		// We have never run gopher at this path
+	if err != nil {
+		// Cache has not been run
 		return true, nil
-	} else if err != nil {
-		return false, fmt.Errorf("could not read existing file: %w", err)
 	}
 	defer expectedReader.Close()
 
