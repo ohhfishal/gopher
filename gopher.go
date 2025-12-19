@@ -14,7 +14,6 @@ import (
 // Devel builds the gopher binary then runs it
 func Devel(ctx context.Context, args RunArgs) error {
 	return Run(ctx, NowAnd(Every(10*time.Second)),
-		ExecCommand("echo", "TEST"),
 		&FileCache{},
 		&Printer{},
 		&GoBuild{
@@ -27,6 +26,24 @@ func Devel(ctx context.Context, args RunArgs) error {
 		// ExecCommand("target/dev", "devel"),
 		ExecCommand("echo", "---"),
 		ExecCommand("echo", "DEVEL OK"),
+	)
+}
+
+// cicd runs the entire ci/cd suite
+func CICD(ctx context.Context, args RunArgs) error {
+	return Run(ctx, Now(),
+		&Printer{},
+		&GoBuild{
+			Output: "target/dev",
+		},
+		&GoFormat{
+			CheckOnly: true,
+		},
+		&GoTest{},
+		// TODO: Find a way to hot-swap the binary so we can bootstrap outself
+		// NOTE: Also maybe a "closer" interface to kill the process before rerunning
+		// ExecCommand("target/dev", "devel"),
+		ExecCommand("echo", "CICD OK"),
 	)
 }
 

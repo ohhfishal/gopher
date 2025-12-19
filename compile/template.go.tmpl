@@ -1,31 +1,33 @@
 package main
 
 import (
-  "context"
-  "errors"
+	"context"
+	"errors"
 	"fmt"
+	. "github.com/ohhfishal/gopher/runner"
 	"io"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
-  . "github.com/ohhfishal/gopher/runner"
 )
 
 type Target struct {
-  Name string
-  Description string
-  Func RunFunc
+	Name        string
+	Description string
+	Func        RunFunc
 }
 
 var targets = map[string]Target{
-{{range .Targets}}
-  {{printf "%q" .Name | lower }}: Target{
-    Name: {{printf "%q" .Name}},
-    Description: {{printf "%q" .Description}},
-    Func: {{ printf "%s" .Name}},
-  },
-{{end}}
+	   {{range .Targets}}
+
+	   	{{printf "%q" .Name | lower }}: Target{
+	   	  Name: {{printf "%q" .Name}},
+	   	  Description: {{printf "%q" .Description}},
+	   	  Func: {{ printf "%s" .Name}},
+	   	},
+
+	   {{end}}
 }
 
 func main() {
@@ -42,22 +44,22 @@ func main() {
 }
 
 func Main(ctx context.Context, stdout io.Writer, args []string) error {
-  if len(args) < 1 {
-    return errors.New(`missing argument: "<target>"`)
-  }
-  if args[0] == "-l" {
-    PrintTargets()
-    return nil
-  }
-  if target, ok := targets[args[0]]; ok {
-    return target.Func(ctx, RunArgs{})
-  }
-  return fmt.Errorf("unknown target: %s", args[0])
+	if len(args) < 1 {
+		return errors.New(`missing argument: "<target>"`)
+	}
+	if args[0] == "-l" {
+		PrintTargets()
+		return nil
+	}
+	if target, ok := targets[args[0]]; ok {
+		return target.Func(ctx, RunArgs{})
+	}
+	return fmt.Errorf("unknown target: %s", args[0])
 }
 
 func PrintTargets() {
-  fmt.Println("Targets:")
-  for name, target := range targets {
-    fmt.Printf("  %s: %s\n", strings.ToLower(name), target.Description)
-  }
+	fmt.Println("Targets:")
+	for name, target := range targets {
+		fmt.Printf("  %s: %s\n", strings.ToLower(name), target.Description)
+	}
 }

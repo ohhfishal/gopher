@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os/exec"
+	"strings"
 
 	"github.com/ohhfishal/gopher/pretty"
 )
@@ -24,6 +25,8 @@ type GoTest struct {
 }
 
 type GoFormat struct {
+	CheckOnly bool
+	Path      string
 }
 
 func runGoTool(ctx context.Context, printer *pretty.Printer, args RunArgs, cmdArgs []string) (string, error) {
@@ -70,9 +73,31 @@ func (format *GoFormat) Run(ctx context.Context, args RunArgs) error {
 	printer := pretty.New(args.Stdout, "Go Format")
 	printer.Start()
 
+	if format.CheckOnly {
+		// TODO: This is a hack
+		// slog.Debug("running command", "cmd", args.GoConfig.GoBin, "args", cmdArgs)
+		cmd := exec.CommandContext(ctx, "gofmt", "-l", ".")
+		outputBytes, err := cmd.CombinedOutput()
+		output := string(outputBytes)
+		if len(strings.TrimSpace(output)) != 0 {
+			err := fmt.Errorf("%s", output)
+			printer.Done(err)
+			return err
+		}
+		if printer != nil {
+			printer.Done(err)
+		}
+		return err
+	}
+
+	path := format.Path
+	if path == "" {
+		path = "./..."
+	}
+
 	cmdArgs := []string{
 		"fmt",
-		"./...", // TODO: Extract this to be from the struct
+		path,
 	}
 
 	output, err := runGoTool(ctx, printer, args, cmdArgs)

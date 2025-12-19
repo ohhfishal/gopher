@@ -59,7 +59,8 @@ func Compile(stdout io.Writer, reader io.Reader, dir string, goBin string) (retE
 	slog.Debug("parsed targets", "count", len(targets), "targets", targets)
 
 	// Write main.go
-	mainFile, err := os.OpenFile(filepath.Join(dir, "main.go"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	mainPath := filepath.Join(dir, "main.go")
+	mainFile, err := os.OpenFile(mainPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return fmt.Errorf("opening main.go: %w", err)
 	}
@@ -68,6 +69,16 @@ func Compile(stdout io.Writer, reader io.Reader, dir string, goBin string) (retE
 	err = writeMain(mainFile, targets)
 	if err != nil {
 		return fmt.Errorf("writing main.go: %w", err)
+	}
+
+	formatter := runner.GoFormat{Path: mainPath}
+	if err := formatter.Run(context.TODO(), runner.RunArgs{
+		GoConfig: runner.GoConfig{
+			GoBin: goBin,
+		},
+		Stdout: stdout,
+	}); err != nil {
+		return fmt.Errorf("formatting main.go: %w", err)
 	}
 
 	// Build gopher targets binary
