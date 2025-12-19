@@ -36,7 +36,7 @@ type Target struct {
 	Description string
 }
 
-func Compile(reader io.Reader, dir string, goBin string) error {
+func Compile(reader io.Reader, dir string, goBin string) (retErr error) {
 	content, err := io.ReadAll(reader)
 	if err != nil {
 		return err
