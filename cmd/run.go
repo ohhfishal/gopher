@@ -72,6 +72,7 @@ func BuildGopherIfNeeded(file string, directory string, goBin string) error {
 	}
 
 	if ok {
+		slog.Debug("don't need to compile, using cached")
 		return nil
 	}
 	slog.Debug("needs to compile, compiling")

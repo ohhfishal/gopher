@@ -13,6 +13,7 @@ type Printer struct {
 const ClearCharacter = "\033[H\033[2J"
 
 func (printer *Printer) Run(ctx context.Context, args RunArgs) error {
+	// TODO: Make this output better
 	_, err := fmt.Fprintf(args.Stdout,
 		"%sStarting: %s\n---\n",
 		ClearCharacter,

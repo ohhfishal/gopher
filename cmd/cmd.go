@@ -46,7 +46,6 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 
 	if cmd.Debug {
 		cmd.LogConfig.Level = slog.LevelDebug
-		cmd.LogConfig.AddSource = true
 		// TODO: Have this maybe go to a gopher_debug.log??
 	}
 

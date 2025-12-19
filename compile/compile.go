@@ -72,10 +72,12 @@ func Compile(content []byte, dir string, goBin string) error {
 		err = fmt.Errorf("building binary: %w", err)
 		goto cleanup
 	}
+	// TODO: Write metadata to the cache file
 	return nil
 
 cleanup:
 	// Remove .gopher/*.go and delete the binary? Maybe just leave it?
+	// TODO: Consider removing this. We are using a cache file which gives us a way to validate an error stopped us last time
 	return fmt.Errorf("not implemented: cleanup: %w", err)
 	return err
 }
