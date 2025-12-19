@@ -49,7 +49,6 @@ func (config *RunCMD) Run(ctx context.Context, stdout io.Writer, logger *slog.Lo
 		return err
 	}
 	if err := cmd.Wait(); err != nil {
-		fmt.Println(err)
 		return err
 	}
 	return nil
@@ -80,7 +79,7 @@ func buildGopherIfNeeded(stdout io.Writer, file string, directory string, goBin 
 	if err := printer.Start(); err != nil {
 		return fmt.Errorf("printing start message: %w", err)
 	}
-	if err := compile.Compile(reader, directory, goBin); err != nil {
+	if err := compile.Compile(printer, reader, directory, goBin); err != nil {
 		printer.Done(err)
 		return fmt.Errorf("compiling: %w", err)
 	}

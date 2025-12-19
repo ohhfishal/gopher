@@ -26,15 +26,14 @@ type GoTest struct {
 type GoFormat struct {
 }
 
-func runGoTool(ctx context.Context, printer *pretty.Printer, args RunArgs, cmdArgs []string) error {
+func runGoTool(ctx context.Context, printer *pretty.Printer, args RunArgs, cmdArgs []string) (string, error) {
 	slog.Debug("running command", "cmd", args.GoConfig.GoBin, "args", cmdArgs)
 	cmd := exec.CommandContext(ctx, args.GoConfig.GoBin, cmdArgs...)
 	output, err := cmd.CombinedOutput()
 	if printer != nil {
 		printer.Done(err)
 	}
-	fmt.Fprint(args.Stdout, string(output))
-	return err
+	return string(output), err
 }
 
 func (build *GoBuild) Run(ctx context.Context, args RunArgs) error {
@@ -47,7 +46,9 @@ func (build *GoBuild) Run(ctx context.Context, args RunArgs) error {
 	}
 	cmdArgs = append(cmdArgs, build.Packages...)
 
-	return runGoTool(ctx, printer, args, cmdArgs)
+	output, err := runGoTool(ctx, printer, args, cmdArgs)
+	fmt.Fprint(args.Stdout, output)
+	return err
 }
 
 func (test *GoTest) Run(ctx context.Context, args RunArgs) error {
@@ -60,7 +61,9 @@ func (test *GoTest) Run(ctx context.Context, args RunArgs) error {
 	}
 	cmdArgs := []string{"test", path}
 
-	return runGoTool(ctx, printer, args, cmdArgs)
+	output, err := runGoTool(ctx, printer, args, cmdArgs)
+	fmt.Fprint(args.Stdout, output)
+	return err
 }
 
 func (format *GoFormat) Run(ctx context.Context, args RunArgs) error {
@@ -72,5 +75,7 @@ func (format *GoFormat) Run(ctx context.Context, args RunArgs) error {
 		"./...", // TODO: Extract this to be from the struct
 	}
 
-	return runGoTool(ctx, printer, args, cmdArgs)
+	output, err := runGoTool(ctx, printer, args, cmdArgs)
+	fmt.Fprint(args.Stdout, output)
+	return err
 }

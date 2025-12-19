@@ -51,8 +51,9 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 
 	logger := cmd.LogConfig.NewLogger(stdout)
 	if err := context.Run(logger); err != nil {
-		logger.Error("failed to run", "error", err)
-		return nil
+		return err
+		// logger.Error("failed to run", "error", err)
+		// return nil
 	}
 	return nil
 }

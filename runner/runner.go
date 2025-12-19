@@ -6,19 +6,16 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"iter"
 	"os"
-	"time"
 )
 
-var ErrOK = errors.New("OK")
+// var ErrOK = errors.New("OK")
 var ErrSkip = errors.New("stop and skip iteration")
 
 type GoConfig struct {
 	GoBin string `default:"go" help:"Go binary to use for commands."`
 }
 
-type RunEvent iter.Seq[any]
 type RunFunc func(context.Context, RunArgs) error
 
 // Runner is the interface wrapping tools the user may want to run
@@ -73,39 +70,6 @@ func (gopher *Gopher) run(ctx context.Context, runners ...Runner) {
 		} else if err != nil {
 			fmt.Fprintln(os.Stdout, err)
 			return
-		}
-	}
-}
-
-func NowAnd(when RunEvent) RunEvent {
-	return func(yield func(any) bool) {
-		for range Now() {
-			if !yield(nil) {
-				break
-			}
-		}
-		for range when {
-			if !yield(nil) {
-				return
-			}
-		}
-	}
-}
-
-func Now() RunEvent {
-	return func(yield func(_ any) bool) {
-		_ = yield(nil)
-	}
-}
-
-func Every(duration time.Duration) RunEvent {
-	ticker := time.NewTicker(duration)
-	return func(yield func(_ any) bool) {
-		defer ticker.Stop()
-		for range ticker.C {
-			if !yield(nil) {
-				return
-			}
 		}
 	}
 }

@@ -60,6 +60,8 @@ func (cache *FileCache) initHelper() error {
 	}
 
 	cache.watcher = watcher
+	// NOTE: Prevents a race condition where Run tries to grab this before cache.work sets it
+	cache.ok.Store(true)
 	go cache.work()
 	return nil
 
@@ -67,7 +69,6 @@ func (cache *FileCache) initHelper() error {
 
 func (cache *FileCache) work() {
 	// TODO: Respect context?
-	cache.ok.Store(true)
 	for {
 		select {
 		case event, ok := <-cache.watcher.Events:

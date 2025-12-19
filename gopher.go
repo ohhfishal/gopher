@@ -13,7 +13,8 @@ import (
 
 // Devel builds the gopher binary then runs it
 func Devel(ctx context.Context, args RunArgs) error {
-	return Run(ctx, NowAnd(Every(3*time.Second)),
+	return Run(ctx, NowAnd(Every(10*time.Second)),
+		ExecCommand("echo", "TEST"),
 		&FileCache{},
 		&Printer{},
 		&GoBuild{

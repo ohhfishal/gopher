@@ -10,8 +10,9 @@ import (
 TODO: Provide more options akin to exec.Shell
 */
 type ExecCmdRunner struct {
-	Name string
-	Args []string
+	Name       string
+	Args       []string
+	HideOutput bool
 }
 
 func ExecCommand(name string, args ...string) Runner {
@@ -24,6 +25,9 @@ func ExecCommand(name string, args ...string) Runner {
 func (runner *ExecCmdRunner) Run(ctx context.Context, args RunArgs) error {
 	cmd := exec.CommandContext(ctx, runner.Name, runner.Args...)
 	output, err := cmd.CombinedOutput()
+	// if !runner.HideOutput {
+	// 	fmt.Fprint(args.Stdout, string(output))
+	// }
 	fmt.Fprint(args.Stdout, string(output))
 	if err != nil {
 		return err

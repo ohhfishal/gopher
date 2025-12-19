@@ -3,7 +3,6 @@ package compile
 import (
 	"context"
 	_ "embed"
-	"errors"
 	"fmt"
 	"github.com/ohhfishal/gopher/cache"
 	"github.com/ohhfishal/gopher/runner"
@@ -36,7 +35,7 @@ type Target struct {
 	Description string
 }
 
-func Compile(reader io.Reader, dir string, goBin string) (retErr error) {
+func Compile(stdout io.Writer, reader io.Reader, dir string, goBin string) (retErr error) {
 	content, err := io.ReadAll(reader)
 	if err != nil {
 		return err
@@ -72,8 +71,7 @@ func Compile(reader io.Reader, dir string, goBin string) (retErr error) {
 	}
 
 	// Build gopher targets binary
-	err = buildBinary(dir, goBin)
-	if err != nil {
+	if err := buildBinary(stdout, dir, goBin); err != nil {
 		return fmt.Errorf("building binary: %w", err)
 	}
 
@@ -84,24 +82,18 @@ func Compile(reader io.Reader, dir string, goBin string) (retErr error) {
 	return nil
 }
 
-func buildBinary(dir string, goBin string) error {
+func buildBinary(stdout io.Writer, dir string, goBin string) error {
 	builder := runner.GoBuild{
 		Output:   BinaryName,
 		Flags:    []string{"-C", dir},
 		Packages: []string{"main.go", TargetsFile},
 	}
-	var output strings.Builder
-	err := builder.Run(context.TODO(), runner.RunArgs{
+	return builder.Run(context.TODO(), runner.RunArgs{
 		GoConfig: runner.GoConfig{
 			GoBin: goBin,
 		},
-		Stdout: &output,
+		Stdout: stdout,
 	})
-	slog.Debug("built", "path", filepath.Join(dir, BinaryName), "output", output.String())
-	if errors.Is(runner.ErrOK, err) {
-		return nil
-	}
-	return err
 }
 
 type TemplateData struct {
