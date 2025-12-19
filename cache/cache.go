@@ -22,14 +22,14 @@ func Valid(gopherfile string, directory string, goBin string) (bool, error) {
 	expectedReader, err := os.Open(filepath.Join(directory, CacheFile))
 	if err != nil {
 		// Cache has not been run
-		return true, nil
+		return false, nil
 	}
 	defer expectedReader.Close()
 
 	decoder := json.NewDecoder(expectedReader)
 	if err := decoder.Decode(&expectedHashMetadata); err != nil {
 		// The cache is corrupted
-		return true, nil
+		return false, nil
 	}
 
 	content, err := os.ReadFile(gopherfile)
