@@ -63,5 +63,5 @@ type CMD struct {
 	Debug     bool         `help:"Turn on debugging features."`
 	Version   VersionCMD   `cmd:"" help:"Print gopher veresion then exit."`
 	Run       RunCMD       `cmd:"" default:"withargs" help:"Run a given target from a gopher.go file."`
-	Bootstrap BootstrapCMD `cmd:"" help:"Bootstrap a projec to use gopher."`
+	Bootstrap BootstrapCMD `cmd:"" help:"Bootstrap a project to use gopher."`
 }
