@@ -18,6 +18,7 @@ type HashMetadata struct {
 }
 
 func Valid(gopherfile string, directory string, goBin string) (bool, error) {
+	// Get the existing cached metadata
 	var expectedHashMetadata HashMetadata
 	expectedReader, err := os.Open(filepath.Join(directory, CacheFile))
 	if err != nil {
@@ -32,6 +33,7 @@ func Valid(gopherfile string, directory string, goBin string) (bool, error) {
 		return false, nil
 	}
 
+	// Calculate the cache meta using current file state
 	content, err := os.ReadFile(gopherfile)
 	if err != nil {
 		return false, fmt.Errorf("opening %s: %w", gopherfile, err)

@@ -5,7 +5,6 @@ The Golang-Configured Makefile-like tool that sits on your directory. Run `go bu
 (My primary use case is to keep running go builds as I fix compliler errors.)
 
 ## TODO
-- [ ] Use gopher + go version in calculating cache hashes
 - [ ] Improve the output of pretty.Printer
 - [ ] Support more gotools
     - [ ] Add more options to those supported
