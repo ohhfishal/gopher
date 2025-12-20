@@ -23,6 +23,7 @@ func Devel(ctx context.Context, args RunArgs) error {
 		&GoTest{},
 		// TODO: Find a way to hot-swap the binary so we can bootstrap outself
 		// NOTE: Also maybe a "closer" interface to kill the process before rerunning
+		// NOTE 25/12/20: Should be done via closing their context?
 		// ExecCommand("target/dev", "devel"),
 		ExecCommand("echo", "---"),
 		ExecCommand("echo", "DEVEL OK"),

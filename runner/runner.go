@@ -9,7 +9,8 @@ import (
 	"os"
 )
 
-// var ErrOK = errors.New("OK")
+// TODO: Hook interfaces? Let runners define an Init, Run and Close methods
+
 var ErrSkip = errors.New("stop and skip iteration")
 
 type GoConfig struct {
