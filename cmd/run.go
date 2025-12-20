@@ -8,11 +8,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"github.com/ohhfishal/gopher/cache"
 	"github.com/ohhfishal/gopher/compile"
-	"github.com/ohhfishal/gopher/example"
 	"github.com/ohhfishal/gopher/pretty"
 	"github.com/ohhfishal/gopher/runner"
 )
@@ -89,12 +87,8 @@ func buildGopherIfNeeded(stdout io.Writer, file string, directory string, goBin 
 func GopherFile(filepath string) (io.ReadCloser, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
-		// TODO: Probably should print a better error like: No gopher file found run "gopher bootstrap" to get started
-		if filepath == DefaultFilePath {
-			slog.Info("could not find gopher.go, using default", "err", err)
-			return io.NopCloser(strings.NewReader(example.DefaultGopherFile)), nil
-		}
-		return nil, fmt.Errorf("failed to open file: %s: %w", filepath, err)
+		msg := `You can run "gopher bootstrap" to get started`
+		return nil, fmt.Errorf("could not open %s: %w\n%s", filepath, err, msg)
 	}
 	return file, nil
 }
