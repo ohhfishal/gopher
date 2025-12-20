@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -46,11 +47,22 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 	}
 
 	if cmd.Debug {
+		cmd.LogConfig.Disable = false
 		cmd.LogConfig.Level = slog.LevelDebug
-		// TODO: Have this maybe go to a gopher_debug.log??
 	}
 
-	logger := cmd.LogConfig.NewLogger(stdout)
+	if err := os.Mkdir(cmd.GopherDir, 0750); err != nil && !os.IsExist(err) {
+		return fmt.Errorf("making working directory: %w", err)
+	}
+
+	// Give options to children
+	cmd.Run.GopherDir = cmd.GopherDir
+	cmd.LogConfig.Directory = cmd.GopherDir
+
+	logger, err := cmd.LogConfig.NewLogger(stdout)
+	if err != nil {
+		return fmt.Errorf("could not create logger: %w", err)
+	}
 	if err := context.Run(logger); err != nil {
 		return err
 		// logger.Error("failed to run", "error", err)
@@ -65,4 +77,5 @@ type CMD struct {
 	Version   cache.CMD    `cmd:"" help:"Print gopher veresion then exit."`
 	Run       RunCMD       `cmd:"" default:"withargs" help:"Run a given target from a gopher.go file."`
 	Bootstrap BootstrapCMD `cmd:"" help:"Bootstrap a project to use gopher."`
+	GopherDir string       `default:".gopher" help:"Directory to cache files gopher creates."`
 }

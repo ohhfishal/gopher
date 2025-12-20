@@ -22,8 +22,8 @@ type RunCMD struct {
 	List       bool            `short:"l" help:"List all targets then exit."`
 	Compile    bool            `help:"Force the gopher compiler to run regardless of cache state."`
 	GoConfig   runner.GoConfig `embed:"" group:"Golang Flags"`
-	GopherDir  string          `default:".gopher" help:"Directory to cache files gopher creates."`
 	GopherFile string          `short:"C" default:"gopher.go" help:"File to read from. If gopher.go is not found, defaults to using examples/default.go. (See source code)"`
+	GopherDir  string          `kong:"-"`
 }
 
 func (config *RunCMD) Run(ctx context.Context, stdout io.Writer, logger *slog.Logger) error {

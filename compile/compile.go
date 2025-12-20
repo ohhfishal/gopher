@@ -35,14 +35,11 @@ type Target struct {
 	Description string
 }
 
+// Compile aa gopher binary using the provided dependencies. Note dir is assumed to exist when called.
 func Compile(stdout io.Writer, reader io.Reader, dir string, goBin string) (retErr error) {
 	content, err := io.ReadAll(reader)
 	if err != nil {
 		return err
-	}
-
-	if err := os.Mkdir(dir, 0750); err != nil && !os.IsExist(err) {
-		return fmt.Errorf("making working directory: %w", err)
 	}
 
 	if err := os.WriteFile(filepath.Join(dir, TargetsFile), content, 0660); err != nil {
