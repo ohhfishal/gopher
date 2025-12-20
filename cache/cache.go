@@ -44,7 +44,7 @@ func Valid(gopherfile string, directory string, goBin string) (bool, error) {
 
 	existingHashMetadata := HashMetadata{
 		Hashes:        hashes,
-		GopherVersion: GopherVersion(),
+		GopherVersion: Version(),
 		GoVersion:     GoVersion(goBin),
 	}
 	return existingHashMetadata == expectedHashMetadata, nil
@@ -58,7 +58,7 @@ func WriteCacheMetadata(gopherFile []byte, dir string, goBin string) error {
 
 	metadata := HashMetadata{
 		Hashes:        hashes,
-		GopherVersion: GopherVersion(),
+		GopherVersion: Version(),
 		GoVersion:     GoVersion(goBin),
 	}
 
@@ -119,17 +119,6 @@ func HashFile(filepath string) (string, error) {
 		return "", err
 	}
 	return Hash(content), nil
-}
-
-func GoVersion(goBin string) string {
-	// Returns empty string if it could not determine the go version
-	// TODO: Implement
-	return "Unknown"
-}
-
-func GopherVersion() string {
-	// TODO: Implement
-	return "Initial file cache commit"
 }
 
 func Hash(content []byte) string {
