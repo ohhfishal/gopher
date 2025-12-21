@@ -13,6 +13,7 @@ import (
 var _ Runner = &GoBuild{}
 var _ Runner = &GoTest{}
 var _ Runner = &GoFormat{}
+var _ Runner = &GoVet{}
 
 type GoBuild struct {
 	Output   string
@@ -27,6 +28,10 @@ type GoTest struct {
 type GoFormat struct {
 	CheckOnly bool
 	Path      string
+}
+
+type GoVet struct {
+	Packages []string
 }
 
 func runGoTool(ctx context.Context, printer *pretty.Printer, args RunArgs, cmdArgs []string) (string, error) {
@@ -63,6 +68,22 @@ func (test *GoTest) Run(ctx context.Context, args RunArgs) error {
 		path = "./..."
 	}
 	cmdArgs := []string{"test", path}
+
+	output, err := runGoTool(ctx, printer, args, cmdArgs)
+	fmt.Fprint(args.Stdout, output)
+	return err
+}
+
+func (vet *GoVet) Run(ctx context.Context, args RunArgs) error {
+	printer := pretty.New(args.Stdout, "Go Vet")
+	printer.Start()
+
+	packages := vet.Packages
+	if len(packages) == 0 {
+		packages = append(packages, "./...")
+	}
+	cmdArgs := []string{"vet"}
+	cmdArgs = append(cmdArgs, packages...)
 
 	output, err := runGoTool(ctx, printer, args, cmdArgs)
 	fmt.Fprint(args.Stdout, output)
