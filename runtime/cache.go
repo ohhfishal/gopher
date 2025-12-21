@@ -1,4 +1,4 @@
-package runner
+package runtime
 
 import (
 	"context"
@@ -16,8 +16,11 @@ import (
 
 var _ Runner = &FileCache{}
 
+/*
+Cache that stops additional runners from running until a file has been chaged.
+*/
 type FileCache struct {
-	Path    string
+	Path    string // Directory to watch for file changes. If empty, defaults to [os.Getwd].
 	watcher *fsnotify.Watcher
 	ok      atomic.Bool
 	once    sync.Once

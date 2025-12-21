@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	. "github.com/ohhfishal/gopher/runner"
+	. "github.com/ohhfishal/gopher/runtime"
 	"io"
 	"os"
 	"os/signal"
@@ -15,7 +15,7 @@ import (
 type Target struct {
 	Name        string
 	Description string
-	Func        RunFunc
+	Func        func(context.Context, RunArgs) error
 }
 
 var targets = map[string]Target{

@@ -1,4 +1,4 @@
-package runner
+package runtime
 
 import (
 	"context"
@@ -6,17 +6,18 @@ import (
 	"time"
 )
 
+// [Runner] that prints a nice status message when called.
 type Printer struct {
 }
 
 // TODO: Think this only works on Linux
-const ClearCharacter = "\033[H\033[2J"
+const clearCharacter = "\033[H\033[2J"
 
 func (printer *Printer) Run(ctx context.Context, args RunArgs) error {
 	// TODO: Make this output better
 	_, err := fmt.Fprintf(args.Stdout,
 		"%sStarting: %s\n---\n",
-		ClearCharacter,
+		clearCharacter,
 		time.Now().Format(time.DateTime),
 	)
 	return err

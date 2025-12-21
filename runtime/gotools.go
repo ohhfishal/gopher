@@ -1,4 +1,4 @@
-package runner
+package runtime
 
 import (
 	"context"
@@ -16,25 +16,40 @@ var _ Runner = &GoFormat{}
 var _ Runner = &GoVet{}
 var _ Runner = &GoModTidy{}
 
+/*
+[GoBuild] implements the [Runner] interface and exec's `go build`.
+*/
 type GoBuild struct {
-	Output   string
-	Flags    []string
-	Packages []string
+	Output   string   // Binary file produced. Effectively go build -o.
+	Flags    []string // Any additional flags to be passed to go build
+	Packages []string // Positional args. If empty, defaults to ["./..."].
 }
 
+/*
+[GoTest] implements the [Runner] interface and exec's `go test`.
+*/
 type GoTest struct {
-	Path string
+	Packages []string // Positional args. If empty, defaults to ["./..."].
 }
 
+/*
+[GoFormat] implements the [Runner] interface and exec's `go fmt`.
+*/
 type GoFormat struct {
-	CheckOnly bool
-	Path      string
+	CheckOnly bool     // If true, `gofmt -l` is used to exit non-zero if formatting is incorrect.
+	Packages  []string // Positional args. If empty, defaults to ["./..."].
 }
 
+/*
+[GoVet] implements the [Runner] interface and exec's `go vet`.
+*/
 type GoVet struct {
-	Packages []string
+	Packages []string // Positional args. If empty, defaults to ["./..."].
 }
 
+/*
+[GoVet] implements the [Runner] interface and exec's `go mod tidy`.
+*/
 type GoModTidy struct {
 }
 
@@ -67,11 +82,12 @@ func (test *GoTest) Run(ctx context.Context, args RunArgs) error {
 	printer := pretty.New(args.Stdout, "Go Test")
 	printer.Start()
 
-	path := test.Path
-	if path == "" {
-		path = "./..."
+	packages := test.Packages
+	if len(packages) == 0 {
+		packages = append(packages, "./...")
 	}
-	cmdArgs := []string{"test", path}
+	cmdArgs := []string{"test"}
+	cmdArgs = append(cmdArgs, packages...)
 
 	output, err := runGoTool(ctx, printer, args, cmdArgs)
 	fmt.Fprint(args.Stdout, output)
@@ -126,15 +142,13 @@ func (format *GoFormat) Run(ctx context.Context, args RunArgs) error {
 		return err
 	}
 
-	path := format.Path
-	if path == "" {
-		path = "./..."
+	packages := format.Packages
+	if len(packages) == 0 {
+		packages = append(packages, "./...")
 	}
 
-	cmdArgs := []string{
-		"fmt",
-		path,
-	}
+	cmdArgs := []string{"fmt"}
+	cmdArgs = append(cmdArgs, packages...)
 
 	output, err := runGoTool(ctx, printer, args, cmdArgs)
 	fmt.Fprint(args.Stdout, output)

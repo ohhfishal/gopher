@@ -1,25 +1,23 @@
 //go:build gopher
 
-/*
-	This file is the default Gopher File loaded if none are specified.
-	We use a go:build gopher tag to ignore this file when doing normal go builds.
-*/
+// We use a build directive to prevent this file being included in your builds
 
 package main
 
 import (
 	"context"
 	"fmt"
-	. "github.com/ohhfishal/gopher/runner"
+	. "github.com/ohhfishal/gopher/runtime"
 	"os"
 	"time"
 )
 
 // Devel builds the app as you make changes.
 func Devel(ctx context.Context, args RunArgs) error {
-	// See runner.Run
+	// See runtime.Run
 	return Run(ctx, NowAnd(Every(3*time.Second)),
 		&FileCache{}, // Only allows the next runner to run if go files have changed
+		&Printer{},   // Prints an initial status message
 		&GoBuild{ // Runner that wraps Go build
 			Output: "target/dev",
 		},

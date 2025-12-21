@@ -12,16 +12,16 @@ import (
 	"github.com/ohhfishal/gopher/cache"
 	"github.com/ohhfishal/gopher/compile"
 	"github.com/ohhfishal/gopher/pretty"
-	"github.com/ohhfishal/gopher/runner"
+	"github.com/ohhfishal/gopher/runtime"
 )
 
 type RunCMD struct {
-	Target     string          `arg:"" default:"default" help:"Recipe to run."`
-	List       bool            `short:"l" help:"List all targets then exit."`
-	Compile    bool            `help:"Force the gopher compiler to run regardless of cache state."`
-	GoConfig   runner.GoConfig `embed:"" group:"Golang Flags"`
-	GopherFile string          `short:"C" default:"gopher.go" help:"File to read from. If gopher.go is not found, defaults to using examples/default.go. (See source code)"`
-	GopherDir  string          `kong:"-"`
+	Target     string           `arg:"" default:"default" help:"Recipe to run."`
+	List       bool             `short:"l" help:"List all targets then exit."`
+	Compile    bool             `help:"Force the gopher compiler to run regardless of cache state."`
+	GoConfig   runtime.GoConfig `embed:"" group:"Golang Flags"`
+	GopherFile string           `short:"C" default:"gopher.go" help:"File to read from. If gopher.go is not found, defaults to using examples/default.go. (See source code)"`
+	GopherDir  string           `kong:"-"`
 }
 
 func (config *RunCMD) Run(ctx context.Context, stdout io.Writer, logger *slog.Logger) error {

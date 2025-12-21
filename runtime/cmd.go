@@ -1,4 +1,4 @@
-package runner
+package runtime
 
 import (
 	"context"
@@ -7,14 +7,18 @@ import (
 )
 
 /*
-TODO: Provide more options akin to exec.Shell
+Uses [exec.CommandContext] to create and run commands.
 */
 type ExecCmdRunner struct {
-	Name       string
-	Args       []string
-	HideOutput bool
+	// TODO: Provide more options akin to exec.Shell
+	Name       string   // Same as [exec.CommandContext]
+	Args       []string // Same as [exec.CommandContext]
+	HideOutput bool     // When true, does not print command output to [RunArgs].Stdout
 }
 
+/*
+Shorthand syntax for creating a [ExecCmdRunner] that exposes only the same parameters as [exec.Command].
+*/
 func ExecCommand(name string, args ...string) Runner {
 	return &ExecCmdRunner{
 		Name: name,

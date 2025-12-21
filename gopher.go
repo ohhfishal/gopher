@@ -6,7 +6,7 @@ package main
 
 import (
 	"context"
-	. "github.com/ohhfishal/gopher/runner"
+	. "github.com/ohhfishal/gopher/runtime"
 	"os"
 	"time"
 )

@@ -4,6 +4,25 @@ The Golang-Configured Makefile-like tool that sits on your directory. Run `go bu
 
 (My primary use case is to keep running go builds as I fix compliler errors.)
 
+## Getting Started
+
+```
+# Alternatively use go install
+go get -tool github.com/ohhfishal/gopher
+
+# Confirm installation
+go tool gopher version
+
+# Get a sample gopher.go file (Akin to makefile)
+wget https://raw.githubusercontent.com/ohhfishal/gopher/refs/heads/main/example/default.go -O gopher.go
+
+# Run the hello target to confirm everything is configured
+go tool gopher hello
+```
+
+After that point, open `gopher.go` and add/edit targets as desired.
+
+
 ## TODO
 - [ ] gopher `bootstrap` command
 - [ ] Ctrl + R reset??

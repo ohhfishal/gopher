@@ -5,7 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/ohhfishal/gopher/cache"
-	"github.com/ohhfishal/gopher/runner"
+	"github.com/ohhfishal/gopher/runtime"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -68,9 +68,9 @@ func Compile(stdout io.Writer, reader io.Reader, dir string, goBin string) (retE
 		return fmt.Errorf("writing main.go: %w", err)
 	}
 
-	formatter := runner.GoFormat{Path: mainPath}
-	if err := formatter.Run(context.TODO(), runner.RunArgs{
-		GoConfig: runner.GoConfig{
+	formatter := runtime.GoFormat{Packages: []string{mainPath}}
+	if err := formatter.Run(context.TODO(), runtime.RunArgs{
+		GoConfig: runtime.GoConfig{
 			GoBin: goBin,
 		},
 		Stdout: stdout,
@@ -91,13 +91,13 @@ func Compile(stdout io.Writer, reader io.Reader, dir string, goBin string) (retE
 }
 
 func buildBinary(stdout io.Writer, dir string, goBin string) error {
-	builder := runner.GoBuild{
+	builder := runtime.GoBuild{
 		Output:   BinaryName,
 		Flags:    []string{"-C", dir},
 		Packages: []string{"main.go", TargetsFile},
 	}
-	return builder.Run(context.TODO(), runner.RunArgs{
-		GoConfig: runner.GoConfig{
+	return builder.Run(context.TODO(), runtime.RunArgs{
+		GoConfig: runtime.GoConfig{
 			GoBin: goBin,
 		},
 		Stdout: stdout,
