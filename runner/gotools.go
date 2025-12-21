@@ -14,6 +14,7 @@ var _ Runner = &GoBuild{}
 var _ Runner = &GoTest{}
 var _ Runner = &GoFormat{}
 var _ Runner = &GoVet{}
+var _ Runner = &GoModTidy{}
 
 type GoBuild struct {
 	Output   string
@@ -32,6 +33,9 @@ type GoFormat struct {
 
 type GoVet struct {
 	Packages []string
+}
+
+type GoModTidy struct {
 }
 
 func runGoTool(ctx context.Context, printer *pretty.Printer, args RunArgs, cmdArgs []string) (string, error) {
@@ -84,6 +88,17 @@ func (vet *GoVet) Run(ctx context.Context, args RunArgs) error {
 	}
 	cmdArgs := []string{"vet"}
 	cmdArgs = append(cmdArgs, packages...)
+
+	output, err := runGoTool(ctx, printer, args, cmdArgs)
+	fmt.Fprint(args.Stdout, output)
+	return err
+}
+
+func (tidy *GoModTidy) Run(ctx context.Context, args RunArgs) error {
+	printer := pretty.New(args.Stdout, "Go Mod Tidy")
+	printer.Start()
+
+	cmdArgs := []string{"mod", "tidy"}
 
 	output, err := runGoTool(ctx, printer, args, cmdArgs)
 	fmt.Fprint(args.Stdout, output)
