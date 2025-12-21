@@ -25,9 +25,18 @@ type Runner interface {
 	Run(context.Context, RunArgs) error
 }
 
+type runner struct {
+	f RunFunc
+}
+
+func (r *runner) Run(ctx context.Context, args RunArgs) error {
+	return r.f(ctx, args)
+}
+
 func RunnerFunc(f RunFunc) Runner {
-	panic("not implemented: runnerfunc")
-	return nil
+	return &runner{
+		f: f,
+	}
 }
 
 type RunArgs struct {

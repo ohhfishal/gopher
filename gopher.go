@@ -42,6 +42,7 @@ func CICD(ctx context.Context, args RunArgs) error {
 			CheckOnly: true,
 		},
 		&GoTest{},
+		&GoVet{},
 		ExecCommand("echo", "CICD OK"),
 	)
 }
