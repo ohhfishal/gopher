@@ -29,19 +29,16 @@ func (config *RunCMD) Run(ctx context.Context, stdout io.Writer, logger *slog.Lo
 		return err
 	}
 
-	// Following convention of passing in invokation cmd
-	args := []string{"./" + compile.BinaryName}
+	var args []string
 	if config.List {
 		args = append(args, "-l")
 	}
 	args = append(args, config.Target)
 
-	cmd := &exec.Cmd{
-		Path:   filepath.Join(config.GopherDir, compile.BinaryName),
-		Stdout: stdout,
-		Stderr: stdout,
-		Args:   args,
-	}
+	path := filepath.Join(config.GopherDir, compile.BinaryName)
+	cmd := exec.CommandContext(ctx, path, args...)
+	cmd.Stdout = stdout
+	cmd.Stderr = stdout
 
 	if err := cmd.Start(); err != nil {
 		return err
