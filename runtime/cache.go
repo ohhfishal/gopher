@@ -1,55 +1,42 @@
 package runtime
 
 import (
-	"context"
 	"fmt"
 	"io/fs"
-	"log/slog"
 	"os"
 	"path/filepath"
-	"sync"
-	"sync/atomic"
+	"slices"
+	"time"
 
 	// "github.com/ohhfishal/gopher/pretty"
 	"github.com/fsnotify/fsnotify"
+	"golang.org/x/time/rate"
 )
-
-var _ Runner = &FileCache{}
 
 /*
 Cache that stops additional runners from running until a file has been chaged.
 */
 type FileCache struct {
-	Path    string // Directory to watch for file changes. If empty, defaults to [os.Getwd].
-	watcher *fsnotify.Watcher
-	ok      atomic.Bool
-	once    sync.Once
+	Extensions []string      // List of extensions to watch for changes.
+	Path       string        // Directory to watch for file changes. If empty, defaults to [os.Getwd].
+	Interval   time.Duration // Minimum duration between updates.
 }
 
-func (cache *FileCache) init() {
-	if err := cache.initHelper(); err != nil {
-		// This means a major upstream dependency (os or fsnotify) is broken
-		// If we had asserts this would be an assert instead
-		slog.Error("file cache suffered a fatal error", "error", err)
-		panic(err)
-	}
-}
-
-func (cache *FileCache) initHelper() error {
+func (cache *FileCache) newWatcher() (*fsnotify.Watcher, error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if cache.Path == "" {
 		path, err := os.Getwd()
 		if err != nil {
-			return err
+			return nil, err
 		}
 		cache.Path = path
 	}
 
 	if err := watcher.Add(cache.Path); err != nil {
-		return fmt.Errorf("adding path to watch list: %w", err)
+		return nil, fmt.Errorf("adding path to watch list: %w", err)
 	}
 	if err := filepath.WalkDir(cache.Path, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
@@ -59,42 +46,41 @@ func (cache *FileCache) initHelper() error {
 		}
 		return nil
 	}); err != nil {
-		return fmt.Errorf("walking directories: %w", err)
+		return nil, fmt.Errorf("walking directories: %w", err)
 	}
-
-	cache.watcher = watcher
-	// NOTE: Prevents a race condition where Run tries to grab this before cache.work sets it
-	cache.ok.Store(true)
-	go cache.work()
-	return nil
-
+	return watcher, nil
 }
 
-func (cache *FileCache) work() {
-	// TODO: Respect context?
-	for {
-		select {
-		case event, ok := <-cache.watcher.Events:
-			if !ok || filepath.Ext(event.Name) != ".go" || (!event.Has(fsnotify.Write) &&
-				!event.Has(fsnotify.Create) &&
-				!event.Has(fsnotify.Rename)) {
-				continue
+// Event returns an event that yields when a file is changed.
+func (cache *FileCache) Event() (Event, error) {
+	watcher, err := cache.newWatcher()
+	if err != nil {
+		return nil, fmt.Errorf("adding files to watch: %w", err)
+	}
+	limiter := rate.NewLimiter(rate.Every(cache.Interval), 1)
+	return func(yield func(_ any) bool) {
+		for {
+			select {
+			case event, ok := <-watcher.Events:
+				// filter out events we don't care about
+				if !ok || !slices.Contains(cache.Extensions, filepath.Ext(event.Name)) {
+					continue
+				}
+				if !limiter.Allow() {
+					continue
+				}
+				// NOTE: This delay is to allow editors to fully write their changes
+				time.Sleep(120 * time.Millisecond)
+				if !yield(nil) {
+					return
+				}
+			case err, ok := <-watcher.Errors:
+				if !ok {
+					continue
+				}
+				// TODO: I don't think this triggers so letting it panic
+				panic(err)
 			}
-			cache.ok.Store(true)
-		case err, ok := <-cache.watcher.Errors:
-			if !ok {
-				continue
-			}
-			// TODO: I don't think this triggers so letting it panic
-			panic(err)
 		}
-	}
-}
-
-func (cache *FileCache) Run(ctx context.Context, args RunArgs) error {
-	cache.once.Do(func() { cache.init() })
-	if cache.ok.Swap(false) {
-		return nil
-	}
-	return ErrSkip
+	}, nil
 }

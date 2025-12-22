@@ -32,7 +32,7 @@ func Now() Event {
 }
 
 // Returns an unbounded sequence that yields after a [time.Ticker] tick.
-func Every(duration time.Duration) Event {
+func AfterEvery(duration time.Duration) Event {
 	ticker := time.NewTicker(duration)
 	return func(yield func(_ any) bool) {
 		defer ticker.Stop()
@@ -42,4 +42,24 @@ func Every(duration time.Duration) Event {
 			}
 		}
 	}
+}
+
+/*
+Returns an Event that yields whenever a file of the matching extension is modified.
+Interval is the minimum time between two events.
+Syntax sugar for [FileCache.Event] that panics if there is an error. (Which signifies the os is probably suffering).
+*/
+func OnFileChange(interval time.Duration, extensions ...string) Event {
+	// TODO: Support options
+	cache := &FileCache{
+		Interval:   interval,
+		Extensions: extensions,
+	}
+	event, err := cache.Event()
+	if err != nil {
+		panic(err)
+	} else if event == nil {
+		panic("assert failed event is nil")
+	}
+	return event
 }

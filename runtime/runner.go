@@ -8,7 +8,7 @@
 //
 // Standard Go Tooling: [GoTest], [GoVet], [GoBuild] [GoFormat]
 //
-// Quality of life: [Printer], [FileCache]
+// Quality of life: [Printer]
 package runtime
 
 import (
@@ -73,6 +73,9 @@ func Run(ctx context.Context, event Event, runners ...Runner) error {
 type Gopher struct {
 }
 
+/*
+Calls all runners sequentially when event triggers. Any runners that implement [Init] have the method called.
+*/
 func (gopher *Gopher) Run(ctx context.Context, event Event, runners ...Runner) error {
 	for range event {
 		if ctx.Err() != nil {

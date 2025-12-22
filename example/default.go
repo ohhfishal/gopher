@@ -15,9 +15,8 @@ import (
 // Devel builds the app as you make changes.
 func Devel(ctx context.Context, args RunArgs) error {
 	// See runtime.Run
-	return Run(ctx, NowAnd(Every(3*time.Second)),
-		&FileCache{}, // Only allows the next runner to run if go files have changed
-		&Printer{},   // Prints an initial status message
+	return Run(ctx, NowAndOn(FileChanged(1*time.Second, ".go")),
+		&Printer{}, // Prints an initial status message
 		&GoBuild{ // Runner that wraps Go build
 			Output: "target/dev",
 		},

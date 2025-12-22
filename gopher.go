@@ -1,7 +1,5 @@
 //go:build gopher
 
-// This file is the default Gopher File loaded if none are found.
-
 package main
 
 import (
@@ -13,8 +11,7 @@ import (
 
 // Devel builds the gopher binary then runs it
 func Devel(ctx context.Context, args RunArgs) error {
-	return Run(ctx, NowAnd(Every(10*time.Second)),
-		&FileCache{},
+	return Run(ctx, NowAnd(OnFileChange(1*time.Second, ".go")),
 		&Printer{},
 		&GoBuild{
 			Output: "target/dev",

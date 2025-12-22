@@ -6,6 +6,7 @@ require (
 	github.com/alecthomas/kong v1.13.0
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/ohhfishal/kong-help v0.3.2
+	golang.org/x/time v0.14.0
 )
 
 require (
