@@ -1,8 +1,9 @@
 package cache_test
 
 import (
-	"github.com/ohhfishal/gopher/cache"
 	"testing"
+
+	"github.com/ohhfishal/gopher/cache"
 )
 
 func TestHashDeterministic(t *testing.T) {

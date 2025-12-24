@@ -4,9 +4,14 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+
+	"github.com/fatih/color"
 )
 
 var _ io.Writer = &Printer{}
+
+var OK = color.New(color.FgGreen)
+var ERROR = color.New(color.FgRed)
 
 type Printer struct {
 	name   string
@@ -32,11 +37,16 @@ func (printer *Printer) Start() error {
 }
 
 func (printer *Printer) Done(userErr error) error {
-	msg := "\b\b\bOK \n%s"
+	msg := "\b\b\bOK "
+	print := OK
 	if userErr != nil {
-		msg = "\b\b\bERROR\n%s"
+		msg = "\b\b\bERROR"
+		print = ERROR
 	}
-	if _, err := fmt.Fprintf(printer.stdout, msg, printer.buffer.String()); err != nil {
+	if _, err := print.Fprint(printer.stdout, msg); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintln(printer.stdout, printer.buffer.String()); err != nil {
 		return err
 	}
 	return nil
