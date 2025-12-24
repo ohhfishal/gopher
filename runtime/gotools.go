@@ -53,7 +53,7 @@ type GoVet struct {
 type GoModTidy struct {
 }
 
-func runGoTool(ctx context.Context, printer *pretty.Printer, args RunArgs, cmdArgs []string) (string, error) {
+func runGoTool(ctx context.Context, printer *pretty.Printer, args *Gopher, cmdArgs []string) (string, error) {
 	slog.Debug("running command", "cmd", args.GoConfig.GoBin, "args", cmdArgs)
 	cmd := exec.CommandContext(ctx, args.GoConfig.GoBin, cmdArgs...)
 	output, err := cmd.CombinedOutput()
@@ -63,7 +63,7 @@ func runGoTool(ctx context.Context, printer *pretty.Printer, args RunArgs, cmdAr
 	return string(output), err
 }
 
-func (build *GoBuild) Run(ctx context.Context, args RunArgs) error {
+func (build *GoBuild) Run(ctx context.Context, args *Gopher) error {
 	printer := pretty.New(args.Stdout, "Go Build")
 	printer.Start()
 
@@ -78,7 +78,7 @@ func (build *GoBuild) Run(ctx context.Context, args RunArgs) error {
 	return err
 }
 
-func (test *GoTest) Run(ctx context.Context, args RunArgs) error {
+func (test *GoTest) Run(ctx context.Context, args *Gopher) error {
 	printer := pretty.New(args.Stdout, "Go Test")
 	printer.Start()
 
@@ -94,7 +94,7 @@ func (test *GoTest) Run(ctx context.Context, args RunArgs) error {
 	return err
 }
 
-func (vet *GoVet) Run(ctx context.Context, args RunArgs) error {
+func (vet *GoVet) Run(ctx context.Context, args *Gopher) error {
 	printer := pretty.New(args.Stdout, "Go Vet")
 	printer.Start()
 
@@ -110,7 +110,7 @@ func (vet *GoVet) Run(ctx context.Context, args RunArgs) error {
 	return err
 }
 
-func (tidy *GoModTidy) Run(ctx context.Context, args RunArgs) error {
+func (tidy *GoModTidy) Run(ctx context.Context, args *Gopher) error {
 	printer := pretty.New(args.Stdout, "Go Mod Tidy")
 	printer.Start()
 
@@ -121,7 +121,7 @@ func (tidy *GoModTidy) Run(ctx context.Context, args RunArgs) error {
 	return err
 }
 
-func (format *GoFormat) Run(ctx context.Context, args RunArgs) error {
+func (format *GoFormat) Run(ctx context.Context, args *Gopher) error {
 	printer := pretty.New(args.Stdout, "Go Format")
 	printer.Start()
 

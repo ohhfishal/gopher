@@ -13,7 +13,7 @@ type ExecCmdRunner struct {
 	// TODO: Provide more options akin to exec.Shell
 	Name       string   // Same as [exec.CommandContext]
 	Args       []string // Same as [exec.CommandContext]
-	HideOutput bool     // When true, does not print command output to [RunArgs].Stdout
+	HideOutput bool     // When true, does not print command output to [Gopher].Stdout
 }
 
 /*
@@ -26,7 +26,7 @@ func ExecCommand(name string, args ...string) Runner {
 	}
 }
 
-func (runner *ExecCmdRunner) Run(ctx context.Context, args RunArgs) error {
+func (runner *ExecCmdRunner) Run(ctx context.Context, args *Gopher) error {
 	cmd := exec.CommandContext(ctx, runner.Name, runner.Args...)
 	output, err := cmd.CombinedOutput()
 	// if !runner.HideOutput {

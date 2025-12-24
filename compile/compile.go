@@ -4,8 +4,6 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
-	"github.com/ohhfishal/gopher/cache"
-	"github.com/ohhfishal/gopher/runtime"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -15,6 +13,9 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	"github.com/ohhfishal/gopher/cache"
+	"github.com/ohhfishal/gopher/runtime"
 )
 
 var funcMap = template.FuncMap{
@@ -69,7 +70,7 @@ func Compile(stdout io.Writer, reader io.Reader, dir string, goBin string) (retE
 	}
 
 	formatter := runtime.GoFormat{Packages: []string{mainPath}}
-	if err := formatter.Run(context.TODO(), runtime.RunArgs{
+	if err := formatter.Run(context.TODO(), &runtime.Gopher{
 		GoConfig: runtime.GoConfig{
 			GoBin: goBin,
 		},
@@ -96,7 +97,7 @@ func buildBinary(stdout io.Writer, dir string, goBin string) error {
 		Flags:    []string{"-C", dir},
 		Packages: []string{"main.go", TargetsFile},
 	}
-	return builder.Run(context.TODO(), runtime.RunArgs{
+	return builder.Run(context.TODO(), &runtime.Gopher{
 		GoConfig: runtime.GoConfig{
 			GoBin: goBin,
 		},

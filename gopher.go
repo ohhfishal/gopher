@@ -4,14 +4,15 @@ package main
 
 import (
 	"context"
-	. "github.com/ohhfishal/gopher/runtime"
 	"os"
 	"time"
+
+	. "github.com/ohhfishal/gopher/runtime"
 )
 
 // Devel builds the gopher binary then runs it
-func Devel(ctx context.Context, args RunArgs) error {
-	return Run(ctx, NowAnd(OnFileChange(1*time.Second, ".go")),
+func Devel(ctx context.Context, gopher *Gopher) error {
+	return gopher.Run(ctx, NowAnd(OnFileChange(1*time.Second, ".go")),
 		&Printer{},
 		&GoBuild{
 			Output: "target/dev",
@@ -30,8 +31,8 @@ func Devel(ctx context.Context, args RunArgs) error {
 }
 
 // cicd runs the entire ci/cd suite
-func CICD(ctx context.Context, args RunArgs) error {
-	return Run(ctx, Now(),
+func CICD(ctx context.Context, gopher *Gopher) error {
+	return gopher.Run(ctx, Now(),
 		&Printer{},
 		&GoBuild{
 			Output: "target/cicd",
@@ -46,6 +47,6 @@ func CICD(ctx context.Context, args RunArgs) error {
 }
 
 // Removes all local build artifacts.
-func Clean(ctx context.Context, args RunArgs) error {
+func Clean(ctx context.Context, gopher *Gopher) error {
 	return os.RemoveAll("target")
 }

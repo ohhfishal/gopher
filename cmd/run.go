@@ -40,6 +40,7 @@ func (config *RunCMD) Run(ctx context.Context, stdout io.Writer, logger *slog.Lo
 	cmd.Stdout = stdout
 	cmd.Stderr = stdout
 
+	slog.Debug("running target", "path", path, "args", args)
 	if err := cmd.Start(); err != nil {
 		return err
 	}

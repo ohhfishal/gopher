@@ -34,21 +34,21 @@ Runners wrap a method to be called in a [Gopher.Run] event loop.
 Ex: go build or go fmt
 */
 type Runner interface {
-	Run(context.Context, RunArgs) error
+	Run(context.Context, *Gopher) error
 }
 
 type runner struct {
-	f func(context.Context, RunArgs) error
+	f func(context.Context, *Gopher) error
 }
 
-func (r *runner) Run(ctx context.Context, args RunArgs) error {
+func (r *runner) Run(ctx context.Context, args *Gopher) error {
 	return r.f(ctx, args)
 }
 
 /*
 Converts a function to a [Runner]
 */
-func RunnerFunc(f func(context.Context, RunArgs) error) Runner {
+func RunnerFunc(f func(context.Context, *Gopher) error) Runner {
 	return &runner{
 		f: f,
 	}
@@ -57,20 +57,10 @@ func RunnerFunc(f func(context.Context, RunArgs) error) Runner {
 /*
 Arguments provided to [Runner]s when called at runtime.
 */
-type RunArgs struct {
+type Gopher struct {
 	GoConfig GoConfig
 	Stdout   io.Writer
-}
-
-/*
-Calls [Gopher.Run] on the default [Gopher] instance.
-*/
-func Run(ctx context.Context, event Event, runners ...Runner) error {
-	var gopher Gopher
-	return gopher.Run(ctx, event, runners...)
-}
-
-type Gopher struct {
+	Target   string
 }
 
 /*
@@ -91,14 +81,7 @@ func (gopher *Gopher) Run(ctx context.Context, event Event, runners ...Runner) e
 
 func (gopher *Gopher) run(ctx context.Context, runners ...Runner) {
 	for _, runner := range runners {
-		err := runner.Run(ctx, RunArgs{
-			// GoBin: gopher.GoBin,
-			// TODO: FIX HACK
-			GoConfig: GoConfig{
-				GoBin: "go",
-			},
-			Stdout: os.Stdout,
-		})
+		err := runner.Run(ctx, gopher)
 		if errors.Is(ErrSkip, err) {
 			return
 		} else if err != nil {

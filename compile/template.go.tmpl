@@ -15,7 +15,7 @@ import (
 type Target struct {
 	Name        string
 	Description string
-	Func        func(context.Context, RunArgs) error
+	Func        func(context.Context, *Gopher) error
 }
 
 var targets = map[string]Target{
@@ -52,7 +52,13 @@ func Main(ctx context.Context, stdout io.Writer, args []string) error {
 		return nil
 	}
 	if target, ok := targets[args[0]]; ok {
-		return target.Func(ctx, RunArgs{})
+		return target.Func(ctx, &Gopher{
+      GoConfig: GoConfig{
+        GoBin: "go",
+      },
+      Stdout: os.Stdout,
+      Target: target.Name,
+    })
 	}
 	return fmt.Errorf("unknown target: %s", args[0])
 }
