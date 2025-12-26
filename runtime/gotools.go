@@ -48,7 +48,7 @@ type GoVet struct {
 }
 
 /*
-[GoVet] implements the [Runner] interface and exec's `go mod tidy`.
+[GoModTidy] implements the [Runner] interface and exec's `go mod tidy`.
 */
 type GoModTidy struct {
 }

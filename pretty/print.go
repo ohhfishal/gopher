@@ -37,10 +37,10 @@ func (printer *Printer) Start() error {
 }
 
 func (printer *Printer) Done(userErr error) error {
-	msg := "\b\b\bOK "
+	msg := "\b\b\bOK \n"
 	print := OK
 	if userErr != nil {
-		msg = "\b\b\bERROR"
+		msg = "\b\b\bERROR\n"
 		print = ERROR
 	}
 	if _, err := print.Fprint(printer.stdout, msg); err != nil {

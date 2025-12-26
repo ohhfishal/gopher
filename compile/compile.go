@@ -37,10 +37,21 @@ type Target struct {
 }
 
 // Compile aa gopher binary using the provided dependencies. Note dir is assumed to exist when called.
-func Compile(stdout io.Writer, reader io.Reader, dir string, goBin string) (retErr error) {
+func Compile(stdout io.Writer, reader io.Reader, dir string, goBin string) error {
 	content, err := io.ReadAll(reader)
 	if err != nil {
 		return err
+	}
+
+	gopher := runtime.Gopher{
+		GoConfig: runtime.GoConfig{
+			GoBin: goBin,
+		},
+		Stdout: stdout,
+	}
+
+	if err := initGoModule(context.TODO(), gopher, dir); err != nil {
+		return fmt.Errorf("init module: %w", err)
 	}
 
 	if err := os.WriteFile(filepath.Join(dir, TargetsFile), content, 0660); err != nil {
@@ -70,12 +81,7 @@ func Compile(stdout io.Writer, reader io.Reader, dir string, goBin string) (retE
 	}
 
 	formatter := runtime.GoFormat{Packages: []string{mainPath}}
-	if err := formatter.Run(context.TODO(), &runtime.Gopher{
-		GoConfig: runtime.GoConfig{
-			GoBin: goBin,
-		},
-		Stdout: stdout,
-	}); err != nil {
+	if err := formatter.Run(context.TODO(), &gopher); err != nil {
 		return fmt.Errorf("formatting main.go: %w", err)
 	}
 
@@ -113,6 +119,37 @@ func writeMain(writer io.Writer, targets []Target) error {
 	return mainTemplate.Execute(writer, TemplateData{
 		Targets: targets,
 	})
+}
+
+func initGoModule(ctx context.Context, gopher runtime.Gopher, dir string) error {
+	var output strings.Builder
+	gopher.Stdout = &output
+	// TODO: Validate that if there is an error its since go.mod already exists
+	runner := &runtime.ExecCmdRunner{
+		Name: gopher.GoConfig.GoBin,
+		Args: []string{"mod", "init", "gopher-scripts"},
+		Dir:  dir,
+	}
+
+	if err := runner.Run(ctx, &gopher); err != nil && !strings.Contains(output.String(), "already exists") {
+		return fmt.Errorf("unhandled error: %w: %s", err, output.String())
+	} else if err != nil {
+		// TODO: Update dependencies here?
+		return nil
+	}
+	// Install runtime dependencies
+	output.Reset()
+
+	// TODO: HACK: Can be a lot smarter with this
+	runner = &runtime.ExecCmdRunner{
+		Name: gopher.GoConfig.GoBin,
+		Args: []string{"get", "github.com/ohhfishal/gopher/runtime"},
+		Dir:  dir,
+	}
+	if err := runner.Run(ctx, &gopher); err != nil {
+		return fmt.Errorf("installing runtime dependencies: %w", err)
+	}
+	return nil
 }
 
 func parseTargets(content []byte) ([]Target, error) {

@@ -79,6 +79,13 @@ func (gopher *Gopher) Run(ctx context.Context, event Event, runners ...Runner) e
 	return nil
 }
 
+/*
+Alias for using the Now() event calling [Gopher.Run]j
+*/
+func (gopher *Gopher) RunNow(ctx context.Context, runners ...Runner) error {
+	return gopher.Run(ctx, Now(), runners...)
+}
+
 func (gopher *Gopher) run(ctx context.Context, runners ...Runner) {
 	for _, runner := range runners {
 		err := runner.Run(ctx, gopher)
