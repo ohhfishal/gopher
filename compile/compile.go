@@ -15,6 +15,7 @@ import (
 	"text/template"
 
 	"github.com/ohhfishal/gopher/cache"
+	"github.com/ohhfishal/gopher/pretty"
 	"github.com/ohhfishal/gopher/runtime"
 )
 
@@ -42,7 +43,7 @@ func Compile(stdout io.Writer, reader io.Reader, dir string, goBin string) error
 	if err != nil {
 		return err
 	}
-
+	stdout = pretty.NewPipeline(stdout, "  ")
 	gopher := runtime.Gopher{
 		GoConfig: runtime.GoConfig{
 			GoBin: goBin,
