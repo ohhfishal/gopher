@@ -12,8 +12,9 @@ import (
 
 // Devel builds the gopher binary then runs it
 func Devel(ctx context.Context, gopher *Gopher) error {
+	var status Status
 	return gopher.Run(ctx, NowAnd(OnFileChange(1*time.Second, ".go")),
-		&Printer{},
+		status.Start(),
 		&GoBuild{
 			Output: "target/dev",
 		},
@@ -24,16 +25,15 @@ func Devel(ctx context.Context, gopher *Gopher) error {
 		// TODO: Find a way to hot-swap the binary so we can bootstrap outself
 		// NOTE: Also maybe a "closer" interface to kill the process before rerunning
 		// NOTE 25/12/20: Should be done via closing their context?
-		// ExecCommand("target/dev", "devel"),
-		ExecCommand("echo", "---"),
-		ExecCommand("echo", "DEVEL OK"),
+		status.Done(),
 	)
 }
 
 // cicd runs the entire ci/cd suite
 func CICD(ctx context.Context, gopher *Gopher) error {
+	var status Status
 	return gopher.Run(ctx, Now(),
-		&Printer{},
+		status.Start(),
 		&GoBuild{
 			Output: "target/cicd",
 		},
@@ -42,7 +42,7 @@ func CICD(ctx context.Context, gopher *Gopher) error {
 		},
 		&GoTest{},
 		&GoVet{},
-		ExecCommand("echo", "CICD OK"),
+		status.Done(),
 	)
 }
 
