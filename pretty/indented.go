@@ -5,23 +5,23 @@ import (
 	"strings"
 )
 
-var _ io.Writer = &Pipeline{}
+var _ io.Writer = &IndentedWriter{}
 
-type Pipeline struct {
+type IndentedWriter struct {
 	stdout io.Writer
 	pos    int
 	delim  string
 	inline bool
 }
 
-func NewPipeline(stdout io.Writer, delim string) *Pipeline {
-	return &Pipeline{
+func NewIndentedWriter(stdout io.Writer, delim string) *IndentedWriter {
+	return &IndentedWriter{
 		stdout: stdout,
 		delim:  delim,
 	}
 }
 
-func (pipeline *Pipeline) Write(content []byte) (int, error) {
+func (pipeline *IndentedWriter) Write(content []byte) (int, error) {
 	if len(content) == 0 {
 		return 0, nil
 	} else if !pipeline.inline {
@@ -43,7 +43,7 @@ func (pipeline *Pipeline) Write(content []byte) (int, error) {
 		return pipeline.stdout.Write(content)
 	}
 	// Write the first line then recurse
-	left, right := contentStr[:index], contentStr[index:]
+	left, right := contentStr[:index+1], contentStr[index+1:]
 	count, err := io.WriteString(pipeline.stdout, left)
 	if err != nil {
 		return count, err

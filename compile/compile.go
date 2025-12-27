@@ -43,7 +43,7 @@ func Compile(stdout io.Writer, reader io.Reader, dir string, goBin string) error
 	if err != nil {
 		return err
 	}
-	stdout = pretty.NewPipeline(stdout, "  ")
+	stdout = pretty.NewIndentedWriter(stdout, "  ")
 	gopher := runtime.Gopher{
 		GoConfig: runtime.GoConfig{
 			GoBin: goBin,
