@@ -30,5 +30,5 @@ After that point, open `gopher.go` and add/edit targets as desired.
 - [ ] Support more gotools
     - [ ] Add more options to those supported
 - [ ] Better validate functions in gopher files (better errors)
-- [ ] Have the .gopher module be initialized and install runtime dependencies
+- [X] Have the .gopher module be initialized and install runtime dependencies
 - [ ] More runner hooks (Init, Run, Close)?
