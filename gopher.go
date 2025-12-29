@@ -10,8 +10,11 @@ import (
 	. "github.com/ohhfishal/gopher/runtime"
 )
 
-// Devel builds the gopher binary then runs it
+// Devel inits git hooks then builds the gopher binary then runs it
 func Devel(ctx context.Context, gopher *Gopher) error {
+	if err := InstallGitHook(gopher.Stdout, GitPreCommit, "go run . cicd"); err != nil {
+		return err
+	}
 	var status Status
 	return gopher.Run(ctx, NowAnd(OnFileChange(1*time.Second, ".go")),
 		status.Start(),
