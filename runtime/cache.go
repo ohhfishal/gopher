@@ -8,8 +8,8 @@ import (
 	"slices"
 	"time"
 
-	// "github.com/ohhfishal/gopher/pretty"
 	"github.com/fsnotify/fsnotify"
+	"github.com/ohhfishal/nibbles/assert"
 	"golang.org/x/time/rate"
 )
 
@@ -79,7 +79,7 @@ func (cache *FileCache) Event() (Event, error) {
 					continue
 				}
 				// TODO: I don't think this triggers so letting it panic
-				panic(err)
+				assert.Unreachable(err.Error())
 			}
 		}
 	}, nil

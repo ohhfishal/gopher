@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"github.com/ohhfishal/nibbles/assert"
 	"iter"
 	"time"
 )
@@ -56,10 +57,10 @@ func OnFileChange(interval time.Duration, extensions ...string) Event {
 		Extensions: extensions,
 	}
 	event, err := cache.Event()
-	if err != nil {
-		panic(err)
-	} else if event == nil {
-		panic("assert failed event is nil")
-	}
+	assert.Nil(err, "filecache getting an event: %w", err)
+	assert.True(
+		event != nil,
+		"caught null pointer exception due to incorrect FileCache.Event()",
+	)
 	return event
 }
