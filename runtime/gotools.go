@@ -53,9 +53,9 @@ type GoVet struct {
 type GoModTidy struct {
 }
 
-func runGoTool(ctx context.Context, printer *pretty.Printer, args *Gopher, cmdArgs []string) (string, error) {
-	slog.Debug("running command", "cmd", args.GoConfig.GoBin, "args", cmdArgs)
-	cmd := exec.CommandContext(ctx, args.GoConfig.GoBin, cmdArgs...)
+func runGoTool(ctx context.Context, printer *pretty.Printer, gopher *Gopher, cmdArgs []string) (string, error) {
+	slog.Debug("running command", "cmd", gopher.GoConfig.GoBin, "args", cmdArgs)
+	cmd := exec.CommandContext(ctx, gopher.GoConfig.GoBin, cmdArgs...)
 	output, err := cmd.CombinedOutput()
 	if printer != nil {
 		printer.Done(err)

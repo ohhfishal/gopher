@@ -33,7 +33,7 @@ func (printer *Printer) Write(content []byte) (int, error) {
 }
 
 func (printer *Printer) Start() error {
-	_, err := fmt.Fprintf(printer.stdout, "Running %s: ", printer.name)
+	_, err := fmt.Fprintf(printer.stdout, "%s: ", printer.name)
 	return err
 }
 

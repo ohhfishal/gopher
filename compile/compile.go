@@ -122,7 +122,12 @@ func writeMain(writer io.Writer, targets []Target) error {
 	})
 }
 
-func initGoModule(ctx context.Context, gopher runtime.Gopher, dir string) error {
+func initGoModule(ctx context.Context, gopher runtime.Gopher, dir string) (retErr error) {
+	printer := pretty.New(gopher.Stdout, fmt.Sprintf("Initializing Go Module (%s)", dir))
+	printer.Start()
+	defer func() { printer.Done(retErr) }()
+	stdout := pretty.NewIndentedWriter(printer, "  ")
+
 	var output strings.Builder
 	gopher.Stdout = &output
 	// TODO: Validate that if there is an error its since go.mod already exists
@@ -132,15 +137,16 @@ func initGoModule(ctx context.Context, gopher runtime.Gopher, dir string) error 
 		Dir:  dir,
 	}
 
-	if err := runner.Run(ctx, &gopher); err != nil && !strings.Contains(output.String(), "already exists") {
+	err := runner.Run(ctx, &gopher)
+	fmt.Fprint(stdout, output.String())
+	if err != nil && !strings.Contains(output.String(), "already exists") {
 		return fmt.Errorf("unhandled error: %w: %s", err, output.String())
 	} else if err != nil {
 		// TODO: Update dependencies here?
 		return nil
 	}
-	// Install runtime dependencies
-	output.Reset()
 
+	gopher.Stdout = stdout
 	// TODO: HACK: Can be a lot smarter with this
 	runner = &runtime.ExecCmdRunner{
 		Name: gopher.GoConfig.GoBin,
