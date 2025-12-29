@@ -3,7 +3,7 @@ package runtime
 import (
 	"context"
 	"fmt"
-	"log/slog"
+	"io"
 	"os/exec"
 	"strings"
 
@@ -53,14 +53,13 @@ type GoVet struct {
 type GoModTidy struct {
 }
 
-func runGoTool(ctx context.Context, printer *pretty.Printer, gopher *Gopher, cmdArgs []string) (string, error) {
-	slog.Debug("running command", "cmd", gopher.GoConfig.GoBin, "args", cmdArgs)
-	cmd := exec.CommandContext(ctx, gopher.GoConfig.GoBin, cmdArgs...)
-	output, err := cmd.CombinedOutput()
-	if printer != nil {
-		printer.Done(err)
+func runGoTool(ctx context.Context, stdout io.Writer, gopher Gopher, cmdArgs []string) error {
+	gopher.Stdout = pretty.NewIndentedWriter(stdout, "  ")
+	runner := &ExecCmdRunner{
+		Name: gopher.GoConfig.GoBin,
+		Args: cmdArgs,
 	}
-	return string(output), err
+	return runner.Run(ctx, &gopher)
 }
 
 func (build *GoBuild) Run(ctx context.Context, args *Gopher) error {
@@ -73,8 +72,8 @@ func (build *GoBuild) Run(ctx context.Context, args *Gopher) error {
 	}
 	cmdArgs = append(cmdArgs, build.Packages...)
 
-	output, err := runGoTool(ctx, printer, args, cmdArgs)
-	fmt.Fprint(args.Stdout, output)
+	err := runGoTool(ctx, printer, *args, cmdArgs)
+	printer.Done(err)
 	return err
 }
 
@@ -89,8 +88,8 @@ func (test *GoTest) Run(ctx context.Context, args *Gopher) error {
 	cmdArgs := []string{"test"}
 	cmdArgs = append(cmdArgs, packages...)
 
-	output, err := runGoTool(ctx, printer, args, cmdArgs)
-	fmt.Fprint(args.Stdout, output)
+	err := runGoTool(ctx, printer, *args, cmdArgs)
+	printer.Done(err)
 	return err
 }
 
@@ -105,8 +104,8 @@ func (vet *GoVet) Run(ctx context.Context, args *Gopher) error {
 	cmdArgs := []string{"vet"}
 	cmdArgs = append(cmdArgs, packages...)
 
-	output, err := runGoTool(ctx, printer, args, cmdArgs)
-	fmt.Fprint(args.Stdout, output)
+	err := runGoTool(ctx, printer, *args, cmdArgs)
+	printer.Done(err)
 	return err
 }
 
@@ -116,8 +115,8 @@ func (tidy *GoModTidy) Run(ctx context.Context, args *Gopher) error {
 
 	cmdArgs := []string{"mod", "tidy"}
 
-	output, err := runGoTool(ctx, printer, args, cmdArgs)
-	fmt.Fprint(args.Stdout, output)
+	err := runGoTool(ctx, printer, *args, cmdArgs)
+	printer.Done(err)
 	return err
 }
 
@@ -150,7 +149,7 @@ func (format *GoFormat) Run(ctx context.Context, args *Gopher) error {
 	cmdArgs := []string{"fmt"}
 	cmdArgs = append(cmdArgs, packages...)
 
-	output, err := runGoTool(ctx, printer, args, cmdArgs)
-	fmt.Fprint(args.Stdout, output)
+	err := runGoTool(ctx, printer, *args, cmdArgs)
+	printer.Done(err)
 	return err
 }
