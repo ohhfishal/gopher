@@ -25,7 +25,7 @@ go tool gopher hello
 After that point, open `gopher.go` and add/edit targets as desired. All target functions must have exactly 2 parameters `context.Context` and `*gopher/runtime.Gopher`. (See example.)
 
 ## Example
-See [examples/default.go](examples/default.go).
+See [example/default.go](example/default.go).
 ```go
 //go:build gopher
 
