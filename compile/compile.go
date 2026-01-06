@@ -177,9 +177,18 @@ func parseTargets(content []byte) ([]Target, error) {
 			continue
 		}
 
+		comment := "No target description provided."
+		if node.Doc != nil {
+			if len(node.Doc.List) == 1 {
+				comment = strings.TrimPrefix(node.Doc.List[0].Text, "// ")
+			} else {
+				return nil, fmt.Errorf("not implemented: multi-line doc comment for targets")
+			}
+		}
+
 		targets = append(targets, Target{
 			Name:        node.Name.Name,
-			Description: "TODO IMPLEMENT PARSING COMMENT",
+			Description: comment,
 		})
 	}
 	return targets, nil

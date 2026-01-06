@@ -32,7 +32,7 @@ func Devel(ctx context.Context, gopher *Gopher) error {
 	)
 }
 
-// cicd runs the entire ci/cd suite
+// CICD runs the entire ci/cd suite
 func CICD(ctx context.Context, gopher *Gopher) error {
 	var status Status
 	return gopher.Run(ctx, Now(),

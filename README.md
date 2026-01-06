@@ -103,5 +103,5 @@ func CICD(ctx context.Context, gopher *Gopher) error {
 - [ ] Support more gotools
     - [ ] Add more options to those supported
 - [ ] Better validate functions in gopher files (better errors)
-- [ ] Comments in `gopher.go` visible when using `-l`
+- [ ] Multi-Line doc comments in `gopher.go` visible when using `-l`
 - [ ] Better tests
