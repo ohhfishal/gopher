@@ -10,7 +10,7 @@ import (
 	. "github.com/ohhfishal/gopher/runtime"
 )
 
-// Devel inits git hooks then builds the gopher binary then runs it
+// Devel inits git hooks then builds the gopher binary then runs it.
 func Devel(ctx context.Context, gopher *Gopher) error {
 	if err := InstallGitHook(gopher.Stdout, GitPreCommit, "go run . cicd"); err != nil {
 		return err
@@ -32,7 +32,12 @@ func Devel(ctx context.Context, gopher *Gopher) error {
 	)
 }
 
-// CICD runs the entire ci/cd suite
+/*
+CICD runs the entire ci/cd suite.
+It should be installed as a pre-commit hook using the Devel target.
+This target does not change any code, but instead returns an error if anything
+is incorrect.
+*/
 func CICD(ctx context.Context, gopher *Gopher) error {
 	var status Status
 	return gopher.Run(ctx, Now(),
@@ -52,4 +57,10 @@ func CICD(ctx context.Context, gopher *Gopher) error {
 // Removes all local build artifacts.
 func Clean(ctx context.Context, gopher *Gopher) error {
 	return os.RemoveAll("target")
+}
+
+// Calls devel.
+func Default(ctx context.Context, gopher *Gopher) error {
+	// By defaut gopher tries to call the target "default"
+	return Devel(ctx, gopher)
 }

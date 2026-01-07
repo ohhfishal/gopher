@@ -1,3 +1,12 @@
+//go:build gopher
+
+/*
+The gopher build tag should only be used by the gopher compiler. Otherwise it will break.
+This file should only be modified in its source in the gopher source code.
+
+If you are reading this in a .gopher directory,
+DO NOT EDIT THIS IT WILL GET OVERWRITTEN.
+*/
 package main
 
 import (
@@ -6,8 +15,10 @@ import (
 	"fmt"
 	. "github.com/ohhfishal/gopher/runtime"
 	"io"
+	"maps"
 	"os"
 	"os/signal"
+	"slices"
 	"strings"
 	"syscall"
 )
@@ -16,18 +27,6 @@ type Target struct {
 	Name        string
 	Description string
 	Func        func(context.Context, *Gopher) error
-}
-
-var targets = map[string]Target{
-	   {{range .Targets}}
-
-	   	{{printf "%q" .Name | lower }}: Target{
-	   	  Name: {{printf "%q" .Name}},
-	   	  Description: {{printf "%q" .Description}},
-	   	  Func: {{ printf "%s" .Name}},
-	   	},
-
-	   {{end}}
 }
 
 func main() {
@@ -53,19 +52,23 @@ func Main(ctx context.Context, stdout io.Writer, args []string) error {
 	}
 	if target, ok := targets[args[0]]; ok {
 		return target.Func(ctx, &Gopher{
-      GoConfig: GoConfig{
-        GoBin: "go",
-      },
-      Stdout: os.Stdout,
-      Target: target.Name,
-    })
+			GoConfig: GoConfig{
+				GoBin: "go",
+			},
+			Stdout: os.Stdout,
+			Target: target.Name,
+		})
 	}
 	return fmt.Errorf("unknown target: %s", args[0])
 }
 
 func PrintTargets() {
 	fmt.Println("Targets:")
-	for name, target := range targets {
-		fmt.Printf("  %s: %s\n", strings.ToLower(name), target.Description)
+	keys := slices.Collect(maps.Keys(targets))
+	slices.Sort(keys)
+	for _, name := range keys {
+		target := targets[name]
+		name = strings.ToLower(name)
+		fmt.Printf("  %8s: %s\n", name, strings.ReplaceAll(target.Description, "\n", "\n"+strings.Repeat(" ", max(len(name), 8)+4)))
 	}
 }

@@ -24,6 +24,12 @@ func Hello(ctx context.Context, _ *Gopher) error {
 	return err
 }
 
+// Default
+func Default(ctx context.Context, gopher *Gopher) error {
+	// By defaut gopher tries to call the target with the name "Default"
+	return Hello(ctx, gopher)
+}
+
 // Removes all local build artifacts.
 func Clean(ctx context.Context, _ *Gopher) error {
 	return os.RemoveAll("target")
