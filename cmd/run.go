@@ -18,7 +18,7 @@ import (
 type RunCMD struct {
 	Target     string           `arg:"" default:"default" help:"Recipe to run."`
 	List       bool             `short:"l" help:"List all targets then exit."`
-	Compile    bool             `help:"Force the gopher compiler to run regardless of cache state."`
+	Compile    bool             `help:"Only run the gopher compile then exit without running the target."`
 	GoConfig   runtime.GoConfig `embed:"" group:"Golang Flags"`
 	GopherFile string           `short:"C" default:"gopher.go" help:"File to read from. If gopher.go is not found, defaults to using examples/default.go. (See source code)"`
 	GopherDir  string           `kong:"-"`
@@ -27,6 +27,10 @@ type RunCMD struct {
 func (config *RunCMD) Run(ctx context.Context, stdout io.Writer, logger *slog.Logger) error {
 	if err := buildGopherIfNeeded(stdout, config.GopherFile, config.GopherDir, config.GoConfig.GoBin, config.Compile); err != nil {
 		return err
+	}
+
+	if config.Compile {
+		return nil
 	}
 
 	var args []string

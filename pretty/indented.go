@@ -7,6 +7,8 @@ import (
 
 var _ io.Writer = &IndentedWriter{}
 
+const Indent = "  "
+
 type IndentedWriter struct {
 	stdout io.Writer
 	pos    int
@@ -22,7 +24,9 @@ func NewIndentedWriter(stdout io.Writer, delim string) *IndentedWriter {
 }
 
 func (pipeline *IndentedWriter) Write(content []byte) (int, error) {
-	if len(content) == 0 {
+	if pipeline.delim == "" {
+		return pipeline.stdout.Write(content)
+	} else if len(content) == 0 {
 		return 0, nil
 	} else if !pipeline.inline {
 		if _, err := io.WriteString(pipeline.stdout, pipeline.delim); err != nil {

@@ -60,12 +60,19 @@ func Compile(stdout io.Writer, reader io.Reader, dir string, goBin string) error
 	}
 
 	// Extract info on targets for generating main.go
-	targets, err := parseTargets(content)
+	printer := pretty.New(stdout, "Parsing Targets", pretty.Indent)
+	printer.Start()
+	targets, warnings, err := parseTargets(content)
+	printer.Warn(warnings...)
 	if err != nil {
+		printer.Done(err)
 		return fmt.Errorf("parsing targets: %w", err)
 	} else if len(targets) == 0 {
-		return fmt.Errorf("must include at least one target: %v", targets)
+		err := fmt.Errorf("must include at least one target: %v", targets)
+		printer.Done(err)
+		return err
 	}
+	printer.Done(nil)
 	slog.Debug("parsed targets", "count", len(targets), "targets", targets)
 
 	// Write main.go
@@ -159,7 +166,7 @@ func initGoModule(ctx context.Context, gopher runtime.Gopher, dir string) (retEr
 	return nil
 }
 
-func parseTargets(content []byte) ([]Target, error) {
+func parseTargets(content []byte) ([]Target, []error, error) {
 	tree, err := parser.ParseFile(
 		token.NewFileSet(),
 		TargetsFile,
@@ -167,13 +174,17 @@ func parseTargets(content []byte) ([]Target, error) {
 		parser.ParseComments,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse file: %w", err)
+		return nil, nil, fmt.Errorf("failed to parse file: %w", err)
 	}
 
-	var targets []Target
+	targets := []Target{}
+	warnings := []error{}
 	for _, decl := range tree.Decls {
 		node, ok := decl.(*ast.FuncDecl)
-		if !ok || !node.Name.IsExported() || !isValidFunc(node) {
+		if !ok || !node.Name.IsExported() {
+			continue
+		} else if err := isValidFunc(node); err != nil {
+			warnings = append(warnings, err)
 			continue
 		}
 
@@ -182,7 +193,8 @@ func parseTargets(content []byte) ([]Target, error) {
 			if len(node.Doc.List) == 1 {
 				comment = strings.TrimPrefix(node.Doc.List[0].Text, "// ")
 			} else {
-				return nil, fmt.Errorf("not implemented: multi-line doc comment for targets")
+				warnings = append(warnings, fmt.Errorf("not implemented: multi-line doc comment for targets"))
+				continue
 			}
 		}
 
@@ -191,17 +203,73 @@ func parseTargets(content []byte) ([]Target, error) {
 			Description: comment,
 		})
 	}
-	return targets, nil
+	return targets, warnings, nil
 }
 
-func isValidFunc(fn *ast.FuncDecl) bool {
-	if fn.Type.Params == nil || fn.Type.Params.NumFields() != 2 {
-		return false
+func isValidFunc(fn *ast.FuncDecl) error {
+	expected := funcSignature{
+		Name:       fn.Name.String(),
+		Parameters: []string{"context.Context", "*runtime.Gopher"},
+		Returns:    []string{"error"},
+	}
+	signature := fromFuncDecl(fn)
+
+	errTail := fmt.Errorf("\n\t  have: %s\n\t  want: %s", signature.String(), expected.String())
+
+	if fn.Type.TypeParams != nil && fn.Type.TypeParams.NumFields() != 0 {
+		return fmt.Errorf("expected 0 type parameters got: %d", fn.Type.TypeParams.NumFields())
+	} else if len(signature.Parameters) != len(expected.Parameters) {
+		return fmt.Errorf("expected %d parameters got: %d\n%w",
+			len(expected.Parameters),
+			len(signature.Parameters),
+			errTail,
+		)
+	} else if len(signature.Returns) != len(expected.Returns) {
+		return fmt.Errorf("expected %d return value got: %d\n%w",
+			len(expected.Returns),
+			len(signature.Returns),
+			errTail,
+		)
 	}
 
-	if fn.Type.Results == nil || fn.Type.Results.NumFields() != 1 {
-		return false
+	for i, param := range signature.Parameters {
+		expectedParam := expected.Parameters[i]
+		if param != expectedParam {
+			return fmt.Errorf("param %d: expected %s: got: %s\n%w", i, expectedParam, param, errTail)
+		}
 	}
-	// TODO: Do more validation to make this more robust
-	return true
+
+	for i, ret := range signature.Returns {
+		expectedRet := expected.Returns[i]
+		if ret != expectedRet {
+			return fmt.Errorf("ret %d: expected %s: got: %s\n%w", i, expectedRet, ret, errTail)
+		}
+	}
+	return nil
+
+}
+
+func getType(expr ast.Expr) string {
+	switch t := expr.(type) {
+	case *ast.Ident:
+		return t.Name
+	case *ast.ArrayType:
+		return "[]" + getType(t.Elt)
+	case *ast.StarExpr:
+		return "*" + getType(t.X)
+	case *ast.SelectorExpr:
+		return getType(t.X) + "." + t.Sel.Name
+	case *ast.MapType:
+		return "map[" + getType(t.Key) + "]" + getType(t.Value)
+	case *ast.ChanType:
+		return "chan " + getType(t.Value)
+	case *ast.InterfaceType:
+		return "interface{}"
+	case *ast.StructType:
+		return "struct{}"
+	case *ast.FuncType:
+		return "func"
+	default:
+		return fmt.Sprintf("%T", expr)
+	}
 }
