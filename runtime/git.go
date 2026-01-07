@@ -13,6 +13,10 @@ const (
 	GitPreCommit GitHook = "pre-commit"
 )
 
+/*
+Installs a given githook if the hook does not already exist.
+Content should be the raw content that gets wrirten to the file.
+*/
 func InstallGitHook(stdout io.Writer, hook GitHook, content string) error {
 	// TODO: Maybe only write if the file **does not** exist
 	if err := os.WriteFile(

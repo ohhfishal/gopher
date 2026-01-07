@@ -48,11 +48,11 @@ func AfterEvery(duration time.Duration) Event {
 /*
 Returns an Event that yields whenever a file of the matching extension is modified.
 Interval is the minimum time between two events.
-Syntax sugar for [FileCache.Event] that panics if there is an error. (Which signifies the os is probably suffering).
+Panics if there is an error. (Which signifies the os is probably suffering).
 */
 func OnFileChange(interval time.Duration, extensions ...string) Event {
 	// TODO: Support options
-	cache := &FileCache{
+	cache := &fileCache{
 		Interval:   interval,
 		Extensions: extensions,
 	}
@@ -60,7 +60,7 @@ func OnFileChange(interval time.Duration, extensions ...string) Event {
 	assert.Nil(err, "filecache getting an event: %w", err)
 	assert.True(
 		event != nil,
-		"caught null pointer exception due to incorrect FileCache.Event()",
+		"caught null pointer exception due to incorrect fileCache.Event()",
 	)
 	return event
 }

@@ -8,7 +8,7 @@
 //
 // Standard Go Tooling: [GoTest], [GoVet], [GoBuild] [GoFormat]
 //
-// Quality of life: [Printer]
+// Quality of life: [ExecCmdRunner], [Status.Done], [Status.Start]
 package runtime
 
 import (
@@ -64,7 +64,9 @@ type Gopher struct {
 }
 
 /*
-Calls all runners sequentially when event triggers. Any runners that implement [Init] have the method called.
+Calls all runners sequentially when event triggers.
+The next runner is only called if the previous returns nil.
+You may return [ErrSkip] to not have error output written to Gopher.Stdout.
 */
 func (gopher *Gopher) Run(ctx context.Context, event Event, runners ...Runner) error {
 	for range event {
@@ -80,7 +82,7 @@ func (gopher *Gopher) Run(ctx context.Context, event Event, runners ...Runner) e
 }
 
 /*
-Alias for using the Now() event calling [Gopher.Run]j
+Alias for using the Now() event calling [Gopher.Run].
 */
 func (gopher *Gopher) RunNow(ctx context.Context, runners ...Runner) error {
 	return gopher.Run(ctx, Now(), runners...)

@@ -14,15 +14,15 @@ import (
 )
 
 /*
-Cache that stops additional runners from running until a file has been chaged.
+Cache that stops blocks additional runners from running until a file has been chaged.
 */
-type FileCache struct {
+type fileCache struct {
 	Extensions []string      // List of extensions to watch for changes.
 	Path       string        // Directory to watch for file changes. If empty, defaults to [os.Getwd].
 	Interval   time.Duration // Minimum duration between updates.
 }
 
-func (cache *FileCache) newWatcher() (*fsnotify.Watcher, error) {
+func (cache *fileCache) newWatcher() (*fsnotify.Watcher, error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func (cache *FileCache) newWatcher() (*fsnotify.Watcher, error) {
 }
 
 // Event returns an event that yields when a file is changed.
-func (cache *FileCache) Event() (Event, error) {
+func (cache *fileCache) Event() (Event, error) {
 	watcher, err := cache.newWatcher()
 	if err != nil {
 		return nil, fmt.Errorf("adding files to watch: %w", err)

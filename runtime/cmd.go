@@ -7,7 +7,10 @@ import (
 )
 
 /*
-Uses [exec.CommandContext] to create and run commands.
+Runner that uses [exec.CommandContext] to create and run commands.
+This needs to be done to ensure the command can be canceled and invoked
+several times.
+You may use [ExecCommand] to initialize the struct with a similar API to [exec.Command].
 */
 type ExecCmdRunner struct {
 	// TODO: Provide more options akin to exec.Shell

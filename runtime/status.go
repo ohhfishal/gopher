@@ -15,6 +15,7 @@ type Status struct {
 	lastStart time.Time
 }
 
+// Returns a [Runner] that prints the time since [Status.Start] was last called.
 func (status *Status) Done() Runner {
 	return RunnerFunc(func(ctx context.Context, gopher *Gopher) error {
 		if status.lastStart.IsZero() {
@@ -28,6 +29,7 @@ func (status *Status) Done() Runner {
 	})
 }
 
+// Returns a [Runner] that prints a start message and begins a timer used by [Status.Done].
 func (status *Status) Start() Runner {
 	return RunnerFunc(func(ctx context.Context, gopher *Gopher) error {
 		now := time.Now()
