@@ -76,15 +76,12 @@ func parseTargets(content []byte) ([]Target, []error, error) {
 		}
 
 		comment := "No target description provided."
-		if node.Doc != nil {
-			if len(node.Doc.List) >= 1 {
-				comment = NormalizeComment(node.Doc.List[0].Text)
-				if len(node.Doc.List) > 1 {
-					warnings = append(warnings,
-						fmt.Errorf("unhandled edgecase: multi-comment doc comment for targets. Using only the first"),
-					)
-				}
+		if node.Doc != nil && len(node.Doc.List) > 0 {
+			comments := []string{}
+			for _, line := range node.Doc.List {
+				comments = append(comments, NormalizeComment(line.Text))
 			}
+			comment = strings.Join(comments, "\n")
 		}
 
 		targets = append(targets, Target{

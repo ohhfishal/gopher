@@ -18,6 +18,7 @@ var ERROR = color.New(color.FgRed)
 var OkText = OK.Sprintf("OK")
 var ErrorText = ERROR.Sprintf("ERROR")
 var WarnText = WARN.Sprintf("WARN")
+var warnLog = fmt.Sprintf("[%s]", WarnText)
 
 type Printer struct {
 	name     string
@@ -60,8 +61,8 @@ func (printer *Printer) Done(userErr error) error {
 
 	stdout := NewIndentedWriter(printer.stdout, printer.indent)
 
-	for i, warning := range printer.warnings {
-		fmt.Fprintf(stdout, "%s %s\n", WARN.Sprintf("(%d)", i+1), warning.Error())
+	for _, warning := range printer.warnings {
+		Fwarnln(stdout, warning)
 	}
 
 	output := printer.buffer.String()
@@ -87,4 +88,12 @@ func RemoveTrailingSpaces(str string) string {
 	return strings.TrimRightFunc(str, func(r rune) bool {
 		return r == '\t' || r == '\n' || r == ' '
 	})
+}
+
+func Fwarnln(w io.Writer, msg any) (int, error) {
+	return fmt.Fprintln(w, warnLog, msg)
+}
+
+func Fwarnf(w io.Writer, msg string, args ...any) (int, error) {
+	return fmt.Fprintf(w, warnLog+" "+msg, args...)
 }

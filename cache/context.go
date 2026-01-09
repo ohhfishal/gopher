@@ -16,8 +16,6 @@ func WithFileCancel(ctx context.Context, file string) context.Context {
 
 	// TODO: This goroutine might be leaking
 	go func() {
-		assert.Nil(newCtx.Err())
-
 		err := watch(newCtx, file)
 		cancel(err)
 
