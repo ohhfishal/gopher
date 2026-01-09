@@ -7,13 +7,13 @@ require (
 	github.com/fatih/color v1.18.0
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/ohhfishal/kong-help v0.3.2
-	github.com/ohhfishal/nibbles v0.1.0
+	github.com/ohhfishal/nibbles v0.1.3
 	golang.org/x/time v0.14.0
 )
 
 require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	golang.org/x/sys v0.38.0 // indirect
-	golang.org/x/term v0.37.0 // indirect
+	golang.org/x/sys v0.40.0 // indirect
+	golang.org/x/term v0.38.0 // indirect
 )
