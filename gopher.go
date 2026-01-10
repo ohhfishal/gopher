@@ -10,25 +10,33 @@ import (
 	. "github.com/ohhfishal/gopher/runtime"
 )
 
-// Devel inits git hooks then builds the gopher binary then runs it.
+/*
+Devel inits git hooks then builds the gopher binary then runs it.
+NOTE: This is hardcoded to be used for developers of gopher.
+If you are reading this to try and learn, example/default.go may be more useful.
+*/
 func Devel(ctx context.Context, gopher *Gopher) error {
 	if err := InstallGitHook(gopher.Stdout, GitPreCommit, "go run . cicd"); err != nil {
 		return err
 	}
 	var status Status
+	var count int
 	return gopher.Run(ctx, NowAnd(OnFileChange(1*time.Second, ".go")),
 		status.Start(),
-		&GoBuild{
-			Output: "target/dev",
-		},
+		&GoBuild{},
 		&GoFormat{},
 		&GoTest{},
 		&GoVet{},
 		&GoModTidy{},
-		// TODO: Find a way to hot-swap the binary so we can bootstrap outself
-		// NOTE: Also maybe a "closer" interface to kill the process before rerunning
-		// NOTE 25/12/20: Should be done via closing their context?
 		status.Done(),
+		RunnerFunc(func(ctx context.Context, gopher *Gopher) error {
+			if count >= 1 {
+				// A special flag makes this exit code meaningful for specifically this project.
+				os.Exit(42)
+			}
+			count++
+			return nil
+		}),
 	)
 }
 
