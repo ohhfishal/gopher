@@ -10,7 +10,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/ohhfishal/gopher/cache"
@@ -141,22 +140,15 @@ func GopherFile(filepath string) (io.ReadCloser, error) {
 }
 
 func devExit(stdout io.Writer, err error) {
-	/*
-		Dev exit is here to allow hot swapping of the gopher binary using gopher while developing it.
-		I can not think of a non-malicious reason to use this feature otherwise.
-		Hence protecting it via an ENV/Flag and prohibiting it for any version of gopher not
-		built via go run or in a dirty git repo.
-		Should this be insufficient, open an issue but I only ever expect to remove this.
-	*/
 	if state, ok := err.(*exec.ExitError); ok {
 		version := cache.Version()
 		if version != "(devel)" && !strings.Contains(version, "dirty") {
 			panic("attempted source code dev-exit in tagged version")
 		} else if state.ProcessState.ExitCode() == 42 {
-			msg := "Dev exit used by gopherfile. Execing into newer gopher build. Hope you know what you are doing"
+			msg := "Dev exit used by gopherfile. Hope you know what you are doing"
 			pretty.Fwarnln(stdout, msg)
 			time.Sleep(2 * time.Second)
-			panic(syscall.Exec("./gopher", os.Args, os.Environ()))
+			os.Exit(42)
 		}
 	}
 }
