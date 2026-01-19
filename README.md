@@ -103,3 +103,4 @@ func CICD(ctx context.Context, gopher *Gopher) error {
 - [ ] Support more gotools
     - [ ] Add more options to those supported
 - [ ] Better test suite
+- [ ] Multiple project support 
