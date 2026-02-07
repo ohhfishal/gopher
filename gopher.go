@@ -1,4 +1,4 @@
-//go:build gopher
+//go:build ignore && gopher
 
 package main
 

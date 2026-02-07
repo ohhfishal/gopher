@@ -27,9 +27,10 @@ After that point, open `gopher.go` and add/edit targets as desired. All target f
 ## Example
 See [example/default.go](example/default.go).
 ```go
-//go:build gopher
+//go:build ignore && gopher
 
-// We use a build directive to prevent this file being included in your builds
+// We use the gopher build directive to ignore this file in the build and ignore
+// for tools such as go mod
 
 package main
 
@@ -103,4 +104,4 @@ func CICD(ctx context.Context, gopher *Gopher) error {
 - [ ] Support more gotools
     - [ ] Add more options to those supported
 - [ ] Better test suite
-- [ ] Multiple project support 
+- [ ] Multiple project support

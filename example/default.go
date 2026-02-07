@@ -1,4 +1,4 @@
-//go:build gopher
+//go:build ignore && gopher
 
 // We use a build directive to prevent this file being included in your builds
 
