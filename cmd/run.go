@@ -23,7 +23,7 @@ type RunCMD struct {
 	Compile        bool             `help:"Only run the gopher compile then exit without running the target."`
 	DisableHotswap bool             `help:"Disable restarting if the gopherfile changes while running."`
 	GoConfig       runtime.GoConfig `embed:"" group:"Golang Flags"`
-	GopherFile     string           `short:"C" default:"gopher.go" help:"File to read from. If gopher.go is not found, defaults to using examples/default.go. (See source code)"`
+	GopherFile     string           `short:"C" default:"gopher.go" help:"Gopherfile to read targets from."`
 	GopherDir      string           `kong:"-"`
 }
 
@@ -123,7 +123,7 @@ func buildGopherIfNeeded(stdout io.Writer, file string, directory string, goBin 
 func GopherFile(filepath string) (io.ReadCloser, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
-		msg := `You can run "gopher bootstrap" to get started`
+		msg := `No gopher file found. See the README.md`
 		return nil, fmt.Errorf("could not open %s: %w\n%s", filepath, err, msg)
 	}
 	return file, nil
