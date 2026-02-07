@@ -65,17 +65,14 @@ func Run(ctx context.Context, stdout io.Writer, args []string) error {
 	}
 	if err := context.Run(logger); err != nil {
 		return err
-		// logger.Error("failed to run", "error", err)
-		// return nil
 	}
 	return nil
 }
 
 type CMD struct {
-	LogConfig LogConfig    `embed:"" group:"Logging Flags:"`
-	Debug     bool         `help:"Turn on debugging features."`
-	Version   cache.CMD    `cmd:"" help:"Print gopher veresion then exit."`
-	Run       RunCMD       `cmd:"" default:"withargs" help:"Run a given target from a gopher.go file."`
-	Bootstrap BootstrapCMD `cmd:"" help:"Bootstrap a project to use gopher."`
-	GopherDir string       `default:".gopher" help:"Directory to cache files gopher creates."`
+	LogConfig LogConfig `embed:"" group:"Logging Flags:"`
+	Debug     bool      `help:"Turn on debugging features."`
+	Version   cache.CMD `cmd:"" help:"Print gopher veresion then exit."`
+	Run       RunCMD    `cmd:"" default:"withargs" help:"Run a given target from a gopher.go file."`
+	GopherDir string    `default:".gopher" help:"Directory to cache files gopher creates."`
 }
