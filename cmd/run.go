@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/ohhfishal/gopher/cache"
@@ -26,15 +25,9 @@ type RunCMD struct {
 	GoConfig       runtime.GoConfig `embed:"" group:"Golang Flags"`
 	GopherFile     string           `short:"C" default:"gopher.go" help:"File to read from. If gopher.go is not found, defaults to using examples/default.go. (See source code)"`
 	GopherDir      string           `kong:"-"`
-
-	// Never use this flag in production. It execs to ./gopher and is thus an attack vector
-	Dev bool `hidden:"" env:"GOPHER_DEV" help:"Turn on gopher developer tools. Let's gopher rebuild and exec itself."`
 }
 
 func (config *RunCMD) Run(ctx context.Context, stdout io.Writer, logger *slog.Logger) error {
-	if config.Dev {
-		devLog(stdout, logger)
-	}
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -90,9 +83,6 @@ func (config *RunCMD) run(ctx context.Context, stdout io.Writer, logger *slog.Lo
 		return err
 	}
 	if err := cmd.Wait(); err != nil {
-		if config.Dev {
-			devExit(stdout, err)
-		}
 		return err
 	}
 	return nil
@@ -137,29 +127,4 @@ func GopherFile(filepath string) (io.ReadCloser, error) {
 		return nil, fmt.Errorf("could not open %s: %w\n%s", filepath, err, msg)
 	}
 	return file, nil
-}
-
-func devExit(stdout io.Writer, err error) {
-	if state, ok := err.(*exec.ExitError); ok {
-		version := cache.Version()
-		if version != "(devel)" && !strings.Contains(version, "dirty") {
-			panic("attempted source code dev-exit in tagged version")
-		} else if state.ProcessState.ExitCode() == 42 {
-			msg := "Dev exit used by gopherfile. Hope you know what you are doing"
-			pretty.Fwarnln(stdout, msg)
-			time.Sleep(2 * time.Second)
-			os.Exit(42)
-		}
-	}
-}
-
-func devLog(stdout io.Writer, logger *slog.Logger) {
-	devLogger := logger.With("$GOPHER_DEV", os.Getenv("GOPHER_DEV"), "args", os.Args)
-	devLogger.Error("DEV MODE ENABLED, THIS SHOULD ONLY BE DONE WHILE DEVLOPING GOPHER SOURCE")
-	pretty.Fwarnln(stdout, "----- DEV MODE ENABLED! -----")
-	pretty.Fwarnln(stdout, "If that was not intentional, please kill me.")
-	pretty.Fwarnln(stdout, "A flag/env was set designed specifcally to develop gopher source code.")
-	pretty.Fwarnln(stdout, "I blindly exec ./gopher and thus *arbitrary code on your machine*.")
-	pretty.Fwarnln(stdout, "-----------------------------")
-	time.Sleep(2 * time.Second)
 }
