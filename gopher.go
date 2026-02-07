@@ -20,7 +20,6 @@ func Devel(ctx context.Context, gopher *Gopher) error {
 		return err
 	}
 	var status Status
-	var count int
 	return gopher.Run(ctx, NowAnd(OnFileChange(1*time.Second, ".go")),
 		status.Start(),
 		&GoBuild{},
@@ -29,14 +28,6 @@ func Devel(ctx context.Context, gopher *Gopher) error {
 		&GoVet{},
 		&GoModTidy{},
 		status.Done(),
-		RunnerFunc(func(ctx context.Context, gopher *Gopher) error {
-			if count >= 1 {
-				// A special flag makes this exit code meaningful for specifically this project.
-				os.Exit(42)
-			}
-			count++
-			return nil
-		}),
 	)
 }
 
